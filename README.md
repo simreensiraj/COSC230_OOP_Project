@@ -4,5 +4,5 @@ COSC230 - OOP Lab PROJECT
 Team Members:
 Mariam 
 Simreen - 100068862
-Alyazeya 
-Maryam
+Alyazeya Alhammadi - 100060361
+Maryam Alhefeiti - 100060410
