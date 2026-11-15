@@ -3,8 +3,9 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
-public class StudentRegistrationFrame extends JFrame {
+public class StudentRegistrationFrame extends JFrame implements ActionListener {
 
 	// Text fields
 	JTextField idField;
@@ -32,6 +33,9 @@ public class StudentRegistrationFrame extends JFrame {
 		submitButton = new JButton("Submit Request");
 		backButton = new JButton("Back to Login");
 
+		// Add action listener
+		submitButton.addActionListener(this);
+
 		// Add components
 		add(new JLabel("University ID:"));
 		add(idField);
@@ -58,6 +62,15 @@ public class StudentRegistrationFrame extends JFrame {
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setVisible(true);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+
+		if (e.getSource() == submitButton) {
+
+			JOptionPane.showMessageDialog(this, "Submit Request button clicked!");
+		}
 	}
 
 	// Temporary main method for testing
