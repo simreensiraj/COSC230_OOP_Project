@@ -4,14 +4,23 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+
 import javax.swing.*;
 
+import logic.AccountService;
+import model.Administrator;
+import model.AppData;
+
 public class AdminFrame extends JFrame {
+
+    private static final long serialVersionUID = 1L;
 
     private JLabel clockLabel;
     private JTabbedPane tabs;
 
-    public AdminFrame() {
+    public AdminFrame(AppData data, AccountService accountService,
+            Administrator admin) {
+
         setTitle("GPU Utilization Management - Administrator");
         setSize(1000, 650);
         setLocationRelativeTo(null);
@@ -28,15 +37,14 @@ public class AdminFrame extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout());
 
         clockLabel = new JLabel("Simulated time: Not set");
+
         JButton advanceButton = new JButton("+1 minute");
         JButton logoutButton = new JButton("Log out");
 
-        // Clock will be connected to the scheduler later
+        // Connect to the simulated clock during integration
         advanceButton.setEnabled(false);
 
-        logoutButton.addActionListener(e -> {
-            dispose();
-        });
+        logoutButton.addActionListener(e -> dispose());
 
         buttonPanel.add(clockLabel);
         buttonPanel.add(advanceButton);
@@ -49,7 +57,10 @@ public class AdminFrame extends JFrame {
         tabs = new JTabbedPane();
 
         tabs.addTab("Dashboard", createPlaceholder("Dashboard"));
-        tabs.addTab("Requests", createPlaceholder("Registration Requests"));
+
+        tabs.addTab("Requests",
+                new RequestsPanel(data, accountService, admin));
+
         tabs.addTab("Students", createPlaceholder("Students"));
         tabs.addTab("All Jobs", createPlaceholder("All Jobs"));
 
@@ -58,16 +69,27 @@ public class AdminFrame extends JFrame {
 
     private JPanel createPlaceholder(String text) {
         JPanel panel = new JPanel(new BorderLayout());
-        JLabel label = new JLabel(text + " - Coming soon", SwingConstants.CENTER);
+
+        JLabel label = new JLabel(
+                text + " - Coming soon", SwingConstants.CENTER);
+
         label.setFont(new Font("Arial", Font.PLAIN, 18));
+
         panel.add(label, BorderLayout.CENTER);
         return panel;
     }
 
-    // Temporary main method for testing the admin window
+    // Temporary standalone launcher for UI testing
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            AdminFrame frame = new AdminFrame();
+
+            AppData data = new AppData();
+            AccountService accountService = new AccountService(data);
+            Administrator admin = new Administrator();
+
+            AdminFrame frame =
+                    new AdminFrame(data, accountService, admin);
+
             frame.setVisible(true);
         });
     }
