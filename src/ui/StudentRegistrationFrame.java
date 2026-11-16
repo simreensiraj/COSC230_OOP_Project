@@ -1,4 +1,3 @@
-
 package ui;
 
 import javax.swing.*;
@@ -41,8 +40,9 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 		submitButton = new JButton("Submit Request");
 		backButton = new JButton("Back to Login");
 
-		// Add action listener
+		// Add action listeners
 		submitButton.addActionListener(this);
+		backButton.addActionListener(this);
 
 		// Add components
 		add(new JLabel("University ID:"));
@@ -88,6 +88,12 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 
 				JOptionPane.showMessageDialog(this, ex.getMessage());
 			}
+
+		} else if (e.getSource() == backButton) {
+
+			new LoginFrame();
+			dispose();
+
 		}
 	}
 
