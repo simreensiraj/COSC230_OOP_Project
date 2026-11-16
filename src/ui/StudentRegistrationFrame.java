@@ -5,6 +5,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import logic.AccountService;
+import logic.ValidationException;
+import model.AppData;
+
 public class StudentRegistrationFrame extends JFrame implements ActionListener {
 
 	// Text fields
@@ -17,6 +21,10 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 	// Buttons
 	JButton submitButton;
 	JButton backButton;
+
+	// Registration service
+	AppData data = new AppData();
+	AccountService accountService = new AccountService(data);
 
 	public StudentRegistrationFrame() {
 
@@ -69,7 +77,17 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 
 		if (e.getSource() == submitButton) {
 
-			JOptionPane.showMessageDialog(this, "Submit Request button clicked!");
+			try {
+
+				accountService.register(idField.getText(), nameField.getText(), emailField.getText(),
+						phoneField.getText(), new String(passwordField.getPassword()));
+
+				JOptionPane.showMessageDialog(this, "Registration request submitted successfully!");
+
+			} catch (ValidationException ex) {
+
+				JOptionPane.showMessageDialog(this, ex.getMessage());
+			}
 		}
 	}
 
