@@ -58,7 +58,9 @@ public class LoginFrame extends JFrame implements ActionListener {
 
 		} else if (e.getSource() == registerButton) {
 
-			JOptionPane.showMessageDialog(this, "Request Account button clicked!");
+			new StudentRegistrationFrame();
+			dispose();
+
 		}
 	}
 
