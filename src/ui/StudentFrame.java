@@ -26,6 +26,7 @@ public class StudentFrame extends JFrame implements ActionListener {
 	// Buttons
 	JButton refreshButton;
 	JButton logoutButton;
+	JButton submitJobButton;
 
 	public StudentFrame(AppData data, AccountService accountService, Student student) {
 
@@ -33,7 +34,7 @@ public class StudentFrame extends JFrame implements ActionListener {
 		this.accountService = accountService;
 		this.student = student;
 
-		setLayout(new GridLayout(8, 2));
+		setLayout(new GridLayout(0, 2, 10, 10));
 
 		// Create labels
 		nameLabel = new JLabel(student.getName());
@@ -47,10 +48,12 @@ public class StudentFrame extends JFrame implements ActionListener {
 		// Create buttons
 		refreshButton = new JButton("Refresh Balance");
 		logoutButton = new JButton("Log Out");
+		submitJobButton = new JButton("Submit GPU Job");
 
 		// Add action listeners
 		refreshButton.addActionListener(this);
 		logoutButton.addActionListener(this);
+		submitJobButton.addActionListener(this);
 
 		// Add components
 		add(new JLabel("Welcome:"));
@@ -74,12 +77,15 @@ public class StudentFrame extends JFrame implements ActionListener {
 		add(refreshButton);
 		add(logoutButton);
 
+		add(submitJobButton);
+		add(new JLabel(""));
+
 		// Update balance
 		updateBalance();
 
 		// Window settings
 		setTitle("GPU Utilization Management - Student");
-		setSize(600, 400);
+		setSize(600, 450);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
@@ -99,12 +105,19 @@ public class StudentFrame extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
-		if (e.getSource() == refreshButton) {
+		if (e.getSource() == submitJobButton) {
 
+			// Open the GPU job submission window
+			new SubmitJobFrame();
+
+		} else if (e.getSource() == refreshButton) {
+
+			// Refresh student GPU-minute balances
 			updateBalance();
 
 		} else if (e.getSource() == logoutButton) {
 
+			// Return to login using shared objects
 			new LoginFrame(data, accountService);
 			dispose();
 		}
