@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import logic.AccountService;
 import logic.LoginException;
 import logic.SimulationClock;
@@ -42,8 +41,7 @@ public class ModelStorageTest {
     static void workedExample() {
         System.out.println("-- worked example");
         LocalDateTime t = TimeFormat.parse("16/11/2026 10:00");
-        Student s = new Student("100052210", "pw", "Sara", "sara@ku.ac.ae", "0501234567",
-                new TimeAllowance(100));
+        Student s = new Student("100052210", "pw", "Sara", "sara@ku.ac.ae", "0501234567", new TimeAllowance(100));
         TimeAllowance a = s.getAllowance();
 
         Job jobA = new Job("J101", "100052210", "A", "app", "d", TaskSize.MEDIUM, t);
@@ -137,8 +135,7 @@ public class ModelStorageTest {
         } catch (ValidationException e) {
             pass("bad email rejected (" + e.getField() + ")");
         }
-        AccessRequest omar = accounts.register("100061477", "Omar Khalid", "omar.k@ku.ac.ae",
-                "0501234567", "pw");
+        AccessRequest omar = accounts.register("100061477", "Omar Khalid", "omar.k@ku.ac.ae", "0501234567", "pw");
         loginMessage(accounts, "100061477", "pw", "still pending approval");
 
         accounts.approve(admin, omar, AccountService.DEFAULT_MINUTES);
@@ -173,8 +170,7 @@ public class ModelStorageTest {
         for (int i = 0; i < 20; i++) {
             clock.advance();
         }
-        Student s = new Student("100031025", "pw", "Ali", "ali@ku.ac.ae", "0501234567",
-                new TimeAllowance(100, 5, 30));
+        Student s = new Student("100031025", "pw", "Ali", "ali@ku.ac.ae", "0501234567", new TimeAllowance(100, 5, 30));
         data.getStudents().put(s.getUniversityId(), s);
 
         Job done = new Job("J101", "100031025", "t", "app", "has, a comma", TaskSize.SMALL, t);
@@ -196,8 +192,7 @@ public class ModelStorageTest {
         same("clock restored", loadedClock.getNow(), t.plusMinutes(20));
         same("elapsed minutes restored", loadedClock.getElapsedMinutes(), 20);
         same("J105 back on GPU1", loaded.getGpus()[0].getCurrentJob().getJobId(), "J105");
-        same("J105 has 18 min left", loaded.getGpus()[0].getCurrentJob()
-                .getRemainingMinutes(loadedClock.getNow()), 18);
+        same("J105 has 18 min left", loaded.getGpus()[0].getCurrentJob().getRemainingMinutes(loadedClock.getNow()), 18);
         same("J101 still completed", loaded.getJobs().get(0).getStatus(), JobStatus.COMPLETED);
         same("description with comma", loaded.getJobs().get(0).getDescription(), "has, a comma");
         same("next job ID", loaded.nextJobId(), "J106");
@@ -212,10 +207,8 @@ public class ModelStorageTest {
         same("clock not set yet", clock.isSet(), false);
 
         String folder = Files.createTempDirectory("gpu").toString();
-        Files.write(Paths.get(folder, "students.csv"),
-                List.of("100031025,pw,Ali,ali@ku.ac.ae,0501234567,100,0,0"));
-        Files.write(Paths.get(folder, "jobs.csv"),
-                List.of("J101,100031025,t,app,d,SMALL,16-11-26,QUEUED,0,,,,,"));
+        Files.write(Paths.get(folder, "students.csv"), List.of("100031025,pw,Ali,ali@ku.ac.ae,0501234567,100,0,0"));
+        Files.write(Paths.get(folder, "jobs.csv"), List.of("J101,100031025,t,app,d,SMALL,16-11-26,QUEUED,0,,,,,"));
         try {
             new DataStore(folder).load(new SimulationClock());
             fail("broken date loaded");
@@ -231,10 +224,8 @@ public class ModelStorageTest {
 
     // helpers
 
-    static void check(String name, TimeAllowance a, int allocated, int used, int reserved,
-            int available) {
-        same(name, a.getAllocated() + "/" + a.getUsed() + "/" + a.getReserved() + "/"
-                + a.getAvailable(), allocated + "/" + used + "/" + reserved + "/" + available);
+    static void check(String name, TimeAllowance a, int allocated, int used, int reserved, int available) {
+        same(name, a.getAllocated() + "/" + a.getUsed() + "/" + a.getReserved() + "/" + a.getAvailable(), allocated + "/" + used + "/" + reserved + "/" + available);
     }
 
     static void loginMessage(AccountService accounts, String user, String pw, String expected) {
