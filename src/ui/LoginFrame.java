@@ -83,9 +83,9 @@ public class LoginFrame extends JFrame implements ActionListener {
 
 				} else if (user instanceof Student) {
 
-					JOptionPane.showMessageDialog(this, "Student login successful!");
+					new StudentFrame(data, accountService, (Student) user);
 
-					// StudentFrame will be connected next.
+					dispose();
 
 				}
 
