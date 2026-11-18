@@ -27,6 +27,7 @@ public class StudentFrame extends JFrame implements ActionListener {
 	JButton refreshButton;
 	JButton logoutButton;
 	JButton submitJobButton;
+	JButton myJobsButton;
 
 	public StudentFrame(AppData data, AccountService accountService, Student student) {
 
@@ -49,11 +50,13 @@ public class StudentFrame extends JFrame implements ActionListener {
 		refreshButton = new JButton("Refresh Balance");
 		logoutButton = new JButton("Log Out");
 		submitJobButton = new JButton("Submit GPU Job");
+		myJobsButton = new JButton("My Jobs");
 
 		// Add action listeners
 		refreshButton.addActionListener(this);
 		logoutButton.addActionListener(this);
 		submitJobButton.addActionListener(this);
+		myJobsButton.addActionListener(this);
 
 		// Add components
 		add(new JLabel("Welcome:"));
@@ -74,11 +77,11 @@ public class StudentFrame extends JFrame implements ActionListener {
 		add(new JLabel("Available GPU Minutes:"));
 		add(availableLabel);
 
+		add(submitJobButton);
+		add(myJobsButton);
+
 		add(refreshButton);
 		add(logoutButton);
-
-		add(submitJobButton);
-		add(new JLabel(""));
 
 		// Update balance
 		updateBalance();
@@ -107,17 +110,22 @@ public class StudentFrame extends JFrame implements ActionListener {
 
 		if (e.getSource() == submitJobButton) {
 
-			// Open the GPU job submission window
+			// Open job submission window
 			new SubmitJobFrame();
+
+		} else if (e.getSource() == myJobsButton) {
+
+			// Open this student's jobs
+			new MyJobsFrame(data, student);
 
 		} else if (e.getSource() == refreshButton) {
 
-			// Refresh student GPU-minute balances
+			// Refresh GPU-minute balances
 			updateBalance();
 
 		} else if (e.getSource() == logoutButton) {
 
-			// Return to login using shared objects
+			// Return to login
 			new LoginFrame(data, accountService);
 			dispose();
 		}
