@@ -21,13 +21,17 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 	JButton submitButton;
 	JButton backButton;
 
-	// Registration service
-	AppData data = new AppData();
-	AccountService accountService = new AccountService(data);
+	// Shared objects
+	AppData data;
+	AccountService accountService;
 
-	public StudentRegistrationFrame() {
+	public StudentRegistrationFrame(AppData data, AccountService accountService) {
+
+		this.data = data;
+		this.accountService = accountService;
 
 		GridLayout layout = new GridLayout(6, 2);
+		setLayout(layout);
 
 		// Create text fields
 		idField = new JTextField();
@@ -64,7 +68,6 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 		add(backButton);
 
 		// Window settings
-		setLayout(layout);
 		setTitle("GPU Utilization Management - Registration");
 		setSize(550, 400);
 		setLocationRelativeTo(null);
@@ -91,7 +94,7 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 
 		} else if (e.getSource() == backButton) {
 
-			new LoginFrame();
+			new LoginFrame(data, accountService);
 			dispose();
 
 		}
@@ -99,6 +102,10 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 
 	// Temporary main method for testing
 	public static void main(String[] args) {
-		new StudentRegistrationFrame();
+
+		AppData data = new AppData();
+		AccountService accountService = new AccountService(data);
+
+		new StudentRegistrationFrame(data, accountService);
 	}
 }
