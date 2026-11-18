@@ -2,7 +2,6 @@ package model;
 
 // anyone who can log in. Student and Administrator extend this
 public abstract class User {
-
     private String username;
     private String password;
 
