@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import logic.AccountService;
-import logic.LoginException;
 import logic.SimulationClock;
 import logic.ValidationException;
 import model.AccessRequest;
@@ -18,7 +17,6 @@ import model.Student;
 import model.TaskSize;
 import model.TimeAllowance;
 import model.TimeFormat;
-import storage.DataFileException;
 import storage.DataStore;
 
 // console tests for the model, accounts and storage. run it as a java application
@@ -212,7 +210,7 @@ public class ModelStorageTest {
         try {
             new DataStore(folder).load(new SimulationClock());
             fail("broken date loaded");
-        } catch (DataFileException e) {
+        } catch (ValidationException e) {
             System.out.println("   message: " + e.getMessage().replace("\n", " "));
             if (e.getMessage().contains("jobs.csv (line 1: bad date \"16-11-26\")")) {
                 pass("broken file gives file + line");
@@ -232,7 +230,7 @@ public class ModelStorageTest {
         try {
             accounts.login(user, pw);
             fail("login should fail: " + expected);
-        } catch (LoginException e) {
+        } catch (ValidationException e) {
             if (e.getMessage().contains(expected)) {
                 pass("login message: " + e.getMessage());
             } else {

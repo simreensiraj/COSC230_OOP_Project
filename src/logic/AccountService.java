@@ -53,7 +53,7 @@ public class AccountService {
     }
 
     // returns the admin or an approved student
-    public User login(String username, String password) throws LoginException {
+    public User login(String username, String password) throws ValidationException {
         username = username.trim();
         ArrayList<User> users = new ArrayList<>();
         users.add(admin);
@@ -64,7 +64,7 @@ public class AccountService {
                 if (user.checkPassword(password)) {
                     return user;
                 }
-                throw new LoginException("Wrong password.");
+                throw new ValidationException("Wrong password.");
             }
         }
 
@@ -76,12 +76,12 @@ public class AccountService {
             }
         }
         if (latest == null) {
-            throw new LoginException("No account found. Request an account first.");
+            throw new ValidationException("No account found. Request an account first.");
         }
         if (latest.getStatus() == RequestStatus.PENDING) {
-            throw new LoginException("Your registration request is still pending approval.");
+            throw new ValidationException("Your registration request is still pending approval.");
         }
-        throw new LoginException("Your registration request was rejected.");
+        throw new ValidationException("Your registration request was rejected.");
     }
 
     // admin only (needs an Administrator), blocks duplicate accounts
