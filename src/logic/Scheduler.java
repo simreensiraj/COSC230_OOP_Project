@@ -127,6 +127,101 @@ public void cancel(Job job, String by, String reason) {
     dispatch();
 }
 
+private Map<Job, LocalDateTime> predictStarts(){
+	Map<Job, LocalDateTime> starts = new HashMap<>();
+    if (!clock.isSet()) {
+    	return starts; 
+    }
+    LocalDateTime[] freeAt = new LocalDateTime[4];
+    for (int i = 0; i < 4; i++) {
+        freeAt[i] =gpus[i].getFreeAt(clock.getNow());
+        }
+    for (Job job : getQueue()) {
+        int g = 0;   
+        for (int i = 1; i < 4; i++) {
+            if (freeAt[i].isBefore(freeAt[g])){
+            	g=i;
+            } }
+        starts.put(job, freeAt[g]); 
+        freeAt[g] = freeAt[g].plusMinutes(job.getEstimatedDuration());
+}
+    return starts;}
+
+public LocalDateTime getPredictedStart(Job job) {
+	
+     return predictStarts().get(job);
+}
+
+public LocalDateTime getPredictedFinish(Job job) {
+    LocalDateTime start = getPredictedStart(job);
+    if (start == null) {
+        return null;
+    }
+    return start.plusMinutes(job.getEstimatedDuration());
+}
+
+public int getWaitMinutes(Job job) {
+    LocalDateTime start = getPredictedStart(job);
+    if (start == null) {
+        return 0;
+    }
+    return TimeFormat.minutesBetween(clock.getNow(), start);
+}
+public double getUtilization() {
+    int elapsed = clock.getElapsedMinutes();
+    if (elapsed == 0) {
+        return -1;                      
+    }
+    int busy = 0;
+    for (Job j : jobs) {
+        busy += j.getMinutesRun(clock.getNow());
+    }
+    return busy * 100.0 / (4 * elapsed);
+}
+
+public List<Job> getJobsOf(String studentId) {
+    List<Job> result = new ArrayList<>();
+    for (Job j : jobs) {
+        if (j.getStudentId().equals(studentId)) {
+            result.add(j);
+        }
+    }
+    return result;
+}
+
+public List<Job> getAllJobs() {
+    return new ArrayList<>(jobs);
+}
+
+public GPU[] getGpus() {
+    return gpus;
+}
+
+public int getBusyGpuCount() {
+    int count = 0;
+    for (GPU g : gpus) {
+        if (!g.isFree()) {
+            count++;
+        }
+    }
+    return count;
+}
+
+public int countByStatus(JobStatus status) {
+    int count = 0;
+    for (Job j : jobs) {
+        if (j.getStatus() == status) {
+            count++;
+        }
+    }
+    return count;
+}
+
+public SimulationClock getClock() {
+    return clock;
+}
+
+
 }
 
 
