@@ -86,6 +86,47 @@ public int getQueuePosition(Job job) {
     }
     return 0;
 }
+private void settle(Job job, int minutesRun) {
+	
+	 
+	allowanceOf(job.getStudentId()).release(job.getEstimatedDuration());
+	allowanceOf(job.getStudentId()).charge(minutesRun);
+	
+}
+public boolean advanceMinute() {
+	if (!clock.isSet()) return false;
+
+clock.advance();
+LocalDateTime now = clock.getNow();
+for (GPU gpu : gpus) {
+    Job job = gpu.getCurrentJob();
+    if (job != null && job.getRemainingMinutes(now)<=0) {
+    	job.complete(now);
+    	settle(job,job.getMinutesRun(now));
+    	gpu.free(); } }
+dispatch();
+return true;
+
+}
+
+public void cancel(Job job, String by, String reason) {
+    if (!(by.equals("admin")||by.equals(job.getStudentId()))) {
+        throw new IllegalArgumentException("Not allowed to cancel this job.");
+    }
+    boolean wasRunning = job.getStatus() == JobStatus.RUNNING;
+    int gpuId = job.getAssignedGpuId();
+
+    job.cancel(by, reason, clock.getNow());
+
+    if (wasRunning) {
+    	gpus[gpuId - 1].free();
+    	settle(job, job.getMinutesRun(clock.getNow()));
+    } else {
+    	allowanceOf(job.getStudentId()).release(job.getEstimatedDuration());
+    }
+    dispatch();
+}
+
 }
 
 
