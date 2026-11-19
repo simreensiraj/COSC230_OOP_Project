@@ -22,6 +22,7 @@ public class AdminFrame extends JFrame {
 
     private DashboardPanel dashboardPanel;
     private RequestsPanel requestsPanel;
+    private StudentsPanel studentsPanel;
 
     public AdminFrame(AppData data, AccountService accountService,
             Administrator admin) {
@@ -57,28 +58,30 @@ public class AdminFrame extends JFrame {
         // Administrator tabs
         tabs = new JTabbedPane();
 
-        // Dashboard connected to the shared scheduler and clock
+        // Dashboard
         dashboardPanel = new DashboardPanel(
                 data, Main.scheduler, Main.clock);
-
         tabs.addTab("Dashboard", dashboardPanel);
 
-        // Registration requests
+        // Registration Requests
         requestsPanel = new RequestsPanel(
                 data, accountService, admin);
-
         tabs.addTab("Requests", requestsPanel);
 
-        // Remaining tabs
-        tabs.addTab("Students", createPlaceholder("Students"));
+        // Students management
+        studentsPanel = new StudentsPanel(
+                data, accountService, admin, Main.scheduler);
+        tabs.addTab("Students", studentsPanel);
+
+        // All Jobs will be implemented next
         tabs.addTab("All Jobs", createPlaceholder("All Jobs"));
 
         add(tabs, BorderLayout.CENTER);
 
-        // Set simulation clock
+        // Set the simulation clock
         setupButton.addActionListener(e -> showClockSetup());
 
-        // Advance simulation one minute
+        // Advance simulation by one minute
         advanceButton.addActionListener(e -> {
 
             try {
@@ -100,23 +103,28 @@ public class AdminFrame extends JFrame {
             }
         });
 
-        // Logout and return to Alyazeya's LoginFrame
+        // Logout
         logoutButton.addActionListener(e -> {
+
             Main.save();
             dispose();
 
             new LoginFrame(data, accountService, Main.scheduler);
         });
 
-        // Refresh tables when switching tabs
+        // Refresh the selected tab
         tabs.addChangeListener(e -> {
+
+            if (tabs.getSelectedComponent() == dashboardPanel) {
+                dashboardPanel.refreshDashboard();
+            }
 
             if (tabs.getSelectedComponent() == requestsPanel) {
                 requestsPanel.refreshRequests();
             }
 
-            if (tabs.getSelectedComponent() == dashboardPanel) {
-                dashboardPanel.refreshDashboard();
+            if (tabs.getSelectedComponent() == studentsPanel) {
+                studentsPanel.refreshStudents();
             }
         });
 
@@ -167,8 +175,9 @@ public class AdminFrame extends JFrame {
             advanceButton.setEnabled(false);
         }
 
-        requestsPanel.refreshRequests();
         dashboardPanel.refreshDashboard();
+        requestsPanel.refreshRequests();
+        studentsPanel.refreshStudents();
     }
 
     private JPanel createPlaceholder(String text) {
