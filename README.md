@@ -36,4 +36,4 @@ Java 17 or newer.
 - Complete: `job.complete(now)`, `allowance.release(duration)`, `allowance.charge(job.getMinutesRun(now))`, `gpu.free()`.
 - Cancel: `job.cancel(by, reason, now)`, `allowance.release(duration)`, `allowance.charge(job.getMinutesRun(now))` (0 if it was queued).
 - Accounts: `register(...)`, `login(...)`, `approve(admin, request, minutes)`, `reject(admin, request)`, `grantTime(...)` in `AccountService`.
-- If `load()` throws `DataFileException`, show `e.getMessage()` in an error dialog.
+- Errors the user should see come as `ValidationException`: show `e.getMessage()` (for a form, `e.getField()` says which field). This covers registration, login and a broken data file on `load()`.

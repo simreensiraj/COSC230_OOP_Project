@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import logic.SimulationClock;
+import logic.ValidationException;
 import model.AccessRequest;
 import model.AppData;
 import model.Job;
@@ -59,8 +60,8 @@ public class DataStore {
     }
 
     // fills the given clock and returns everything else
-    // a broken line stops loading with a DataFileException (file + line) instead of crashing
-    public AppData load(SimulationClock clock) throws DataFileException {
+    // a broken line stops loading with a clear message (file + line) instead of crashing
+    public AppData load(SimulationClock clock) throws ValidationException {
         AppData data = new AppData();
         String fileName = "";
         int lineNumber = 0;
@@ -124,7 +125,9 @@ public class DataStore {
                 }
             }
         } catch (Exception e) {
-            throw new DataFileException(folder + "/" + fileName, lineNumber, e.getMessage());
+            // e.g. Could not read data/jobs.csv (line 7: bad date "16-11-26")
+            throw new ValidationException("Could not read " + folder + "/" + fileName + " (line "
+                    + lineNumber + ": " + e.getMessage() + ").\nThe file was not loaded. Fix or remove it, then restart.");
         }
         return data;
     }

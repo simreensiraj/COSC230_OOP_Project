@@ -4,7 +4,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import logic.AccountService;
+import logic.ValidationException;
+import model.Administrator;
+import model.AppData;
+import model.Student;
+import model.User;
+
 public class LoginFrame extends JFrame implements ActionListener {
+
+	// Shared objects
+	AppData data;
+	AccountService accountService;
 
 	// Text fields
 	JTextField usernameField;
@@ -14,9 +25,13 @@ public class LoginFrame extends JFrame implements ActionListener {
 	JButton loginButton;
 	JButton registerButton;
 
-	public LoginFrame() {
+	public LoginFrame(AppData data, AccountService accountService) {
+
+		this.data = data;
+		this.accountService = accountService;
 
 		GridLayout layout = new GridLayout(3, 2);
+		setLayout(layout);
 
 		// Create text fields
 		usernameField = new JTextField();
@@ -41,7 +56,6 @@ public class LoginFrame extends JFrame implements ActionListener {
 		add(registerButton);
 
 		// Window settings
-		setLayout(layout);
 		setTitle("GPU Utilization Management - Login");
 		setSize(550, 300);
 		setLocationRelativeTo(null);
@@ -54,11 +68,35 @@ public class LoginFrame extends JFrame implements ActionListener {
 
 		if (e.getSource() == loginButton) {
 
-			JOptionPane.showMessageDialog(this, "Login button clicked!");
+			String username = usernameField.getText();
+			String password = new String(passwordField.getPassword());
+
+			try {
+
+				User user = accountService.login(username, password);
+
+				if (user instanceof Administrator) {
+
+					new AdminFrame(data, accountService, (Administrator) user).setVisible(true);
+
+					dispose();
+
+				} else if (user instanceof Student) {
+
+					new StudentFrame(data, accountService, (Student) user);
+
+					dispose();
+
+				}
+
+			} catch (ValidationException ex) {
+
+				JOptionPane.showMessageDialog(this, ex.getMessage());
+			}
 
 		} else if (e.getSource() == registerButton) {
 
-			new StudentRegistrationFrame();
+			new StudentRegistrationFrame(data, accountService);
 			dispose();
 
 		}
@@ -66,6 +104,10 @@ public class LoginFrame extends JFrame implements ActionListener {
 
 	// Temporary main method for testing
 	public static void main(String[] args) {
-		new LoginFrame();
+
+		AppData data = new AppData();
+		AccountService accountService = new AccountService(data);
+
+		new LoginFrame(data, accountService);
 	}
 }

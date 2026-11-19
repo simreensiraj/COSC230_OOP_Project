@@ -1,8 +1,6 @@
 package logic;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-
 import model.AccessRequest;
 import model.Administrator;
 import model.AppData;
@@ -13,9 +11,7 @@ import model.User;
 
 // registration, login, approving/rejecting requests and granting time
 public class AccountService {
-
     public static final int DEFAULT_MINUTES = 100;
-
     private AppData data;
     private Administrator admin = new Administrator();
 
@@ -24,8 +20,7 @@ public class AccountService {
     }
 
     // checks the form and saves a PENDING request
-    public AccessRequest register(String universityId, String name, String email, String phone,
-            String password) throws ValidationException {
+    public AccessRequest register(String universityId, String name, String email, String phone, String password) throws ValidationException {
         if (universityId == null || universityId.trim().isEmpty()) {
             throw new ValidationException("universityId", "Enter your university ID.");
         }
@@ -36,8 +31,7 @@ public class AccountService {
             throw new ValidationException("universityId", "This ID already has an account.");
         }
         for (AccessRequest r : data.getRequests()) {
-            if (r.getUniversityId().equals(universityId.trim())
-                    && r.getStatus() == RequestStatus.PENDING) {
+            if (r.getUniversityId().equals(universityId.trim()) && r.getStatus() == RequestStatus.PENDING) {
                 throw new ValidationException("universityId", "A request for this ID is already pending.");
             }
         }
@@ -53,14 +47,13 @@ public class AccountService {
         if (password == null || password.isEmpty()) {
             throw new ValidationException("password", "Choose a password.");
         }
-        AccessRequest request = new AccessRequest(universityId.trim(), name.trim(), email.trim(),
-                phone.trim(), password);
+        AccessRequest request = new AccessRequest(universityId.trim(), name.trim(), email.trim(), phone.trim(), password);
         data.getRequests().add(request);
         return request;
     }
 
     // returns the admin or an approved student
-    public User login(String username, String password) throws LoginException {
+    public User login(String username, String password) throws ValidationException {
         username = username.trim();
         ArrayList<User> users = new ArrayList<>();
         users.add(admin);
@@ -71,7 +64,7 @@ public class AccountService {
                 if (user.checkPassword(password)) {
                     return user;
                 }
-                throw new LoginException("Wrong password.");
+                throw new ValidationException("Wrong password.");
             }
         }
 
@@ -83,12 +76,12 @@ public class AccountService {
             }
         }
         if (latest == null) {
-            throw new LoginException("No account found. Request an account first.");
+            throw new ValidationException("No account found. Request an account first.");
         }
         if (latest.getStatus() == RequestStatus.PENDING) {
-            throw new LoginException("Your registration request is still pending approval.");
+            throw new ValidationException("Your registration request is still pending approval.");
         }
-        throw new LoginException("Your registration request was rejected.");
+        throw new ValidationException("Your registration request was rejected.");
     }
 
     // admin only (needs an Administrator), blocks duplicate accounts
@@ -105,8 +98,7 @@ public class AccountService {
         by.reject(request);
     }
 
-    public TimeGrant grantTime(Administrator by, Student student, int minutes, String reason,
-            LocalDateTime now) {
+    public TimeGrant grantTime(Administrator by, Student student, int minutes, String reason, LocalDateTime now) {
         TimeGrant grant = by.grantTime(student, minutes, reason, now);
         data.getGrants().add(grant);
         return grant;

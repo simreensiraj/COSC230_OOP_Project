@@ -3,16 +3,14 @@ package model;
 // a student's registration request (the 5 fields from the form + a status)
 // approved and rejected requests stay as history
 public class AccessRequest implements Storable {
-
     private String universityId;
     private String name;
     private String email;
     private String phone;
     private String password;
     private RequestStatus status;
-
-    public AccessRequest(String universityId, String name, String email, String phone,
-            String password) {
+    
+    public AccessRequest(String universityId, String name, String email, String phone, String password) {
         this.universityId = universityId;
         this.name = name;
         this.email = email;
