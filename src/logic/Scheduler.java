@@ -221,6 +221,20 @@ public SimulationClock getClock() {
     return clock;
 }
 
+public void loadJob(Job job) {
+ jobs.add(job);
+
+
+ if (job.getStatus() == JobStatus.RUNNING) {
+     gpus[job.getAssignedGpuId() - 1].assign(job);
+ }
+
+
+ int number = Integer.parseInt(job.getJobId().substring(1));  
+ if (number >= nextJobNumber) {
+     nextJobNumber = number + 1;
+ }
+}
 
 }
 
