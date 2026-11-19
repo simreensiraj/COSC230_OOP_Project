@@ -3,6 +3,7 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.format.DateTimeFormatter;
 
 import model.Student;
 import model.AppData;
@@ -11,131 +12,161 @@ import logic.Scheduler;
 
 public class StudentFrame extends JFrame implements ActionListener {
 
-    // Shared objects
-    AppData data;
-    AccountService accountService;
-    Scheduler scheduler;
-    Student student;
+	// Shared objects
+	AppData data;
+	AccountService accountService;
+	Scheduler scheduler;
+	Student student;
 
-    // Labels
-    JLabel nameLabel;
-    JLabel idLabel;
-    JLabel allocatedLabel;
-    JLabel usedLabel;
-    JLabel reservedLabel;
-    JLabel availableLabel;
+	// Labels
+	JLabel nameLabel;
+	JLabel idLabel;
+	JLabel clockLabel;
+	JLabel allocatedLabel;
+	JLabel usedLabel;
+	JLabel reservedLabel;
+	JLabel availableLabel;
 
-    // Buttons
-    JButton refreshButton;
-    JButton logoutButton;
-    JButton submitJobButton;
-    JButton myJobsButton;
+	// Buttons
+	JButton refreshButton;
+	JButton logoutButton;
+	JButton submitJobButton;
+	JButton myJobsButton;
 
-    public StudentFrame(AppData data, AccountService accountService,
-                        Scheduler scheduler, Student student) {
+	public StudentFrame(AppData data, AccountService accountService, Scheduler scheduler, Student student) {
 
-        this.data = data;
-        this.accountService = accountService;
-        this.scheduler = scheduler;
-        this.student = student;
+		this.data = data;
+		this.accountService = accountService;
+		this.scheduler = scheduler;
+		this.student = student;
 
-        setLayout(new GridLayout(0, 2, 10, 10));
+		setLayout(new GridLayout(0, 2, 10, 10));
 
-        // Student information
-        nameLabel = new JLabel(student.getName());
-        idLabel = new JLabel(student.getUniversityId());
+		// Student information
+		nameLabel = new JLabel(student.getName());
+		idLabel = new JLabel(student.getUniversityId());
+		clockLabel = new JLabel();
 
-        // GPU minute balances
-        allocatedLabel = new JLabel();
-        usedLabel = new JLabel();
-        reservedLabel = new JLabel();
-        availableLabel = new JLabel();
+		// GPU minute balances
+		allocatedLabel = new JLabel();
+		usedLabel = new JLabel();
+		reservedLabel = new JLabel();
+		availableLabel = new JLabel();
 
-        // Buttons
-        refreshButton = new JButton("Refresh Balance");
-        logoutButton = new JButton("Log Out");
-        submitJobButton = new JButton("Submit GPU Job");
-        myJobsButton = new JButton("My Jobs");
+		// Buttons
+		refreshButton = new JButton("Refresh Balance");
+		logoutButton = new JButton("Log Out");
+		submitJobButton = new JButton("Submit GPU Job");
+		myJobsButton = new JButton("My Jobs");
 
-        // Add action listeners
-        refreshButton.addActionListener(this);
-        logoutButton.addActionListener(this);
-        submitJobButton.addActionListener(this);
-        myJobsButton.addActionListener(this);
+		// Add action listeners
+		refreshButton.addActionListener(this);
+		logoutButton.addActionListener(this);
+		submitJobButton.addActionListener(this);
+		myJobsButton.addActionListener(this);
 
-        // Add components
-        add(new JLabel("Welcome:"));
-        add(nameLabel);
+		// Add components
+		add(new JLabel("Welcome:"));
+		add(nameLabel);
 
-        add(new JLabel("University ID:"));
-        add(idLabel);
+		add(new JLabel("University ID:"));
+		add(idLabel);
 
-        add(new JLabel("Allocated GPU Minutes:"));
-        add(allocatedLabel);
+		add(new JLabel("Simulated Time:"));
+		add(clockLabel);
 
-        add(new JLabel("Used GPU Minutes:"));
-        add(usedLabel);
+		add(new JLabel("Allocated GPU Minutes:"));
+		add(allocatedLabel);
 
-        add(new JLabel("Reserved GPU Minutes:"));
-        add(reservedLabel);
+		add(new JLabel("Used GPU Minutes:"));
+		add(usedLabel);
 
-        add(new JLabel("Available GPU Minutes:"));
-        add(availableLabel);
+		add(new JLabel("Reserved GPU Minutes:"));
+		add(reservedLabel);
 
-        add(submitJobButton);
-        add(myJobsButton);
+		add(new JLabel("Available GPU Minutes:"));
+		add(availableLabel);
 
-        add(refreshButton);
-        add(logoutButton);
+		add(submitJobButton);
+		add(myJobsButton);
 
-        // Display balances
-        updateBalance();
+		add(refreshButton);
+		add(logoutButton);
 
-        // Window settings
-        setTitle("GPU Utilization Management - Student");
-        setSize(600, 450);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
-    }
+		// Display current information
+		updateBalance();
+		updateClock();
 
-    public void updateBalance() {
+		// Refresh when the dashboard becomes active
+		addWindowFocusListener(new WindowAdapter() {
 
-        allocatedLabel.setText(
-            String.valueOf(student.getAllowance().getAllocated()));
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
 
-        usedLabel.setText(
-            String.valueOf(student.getAllowance().getUsed()));
+				updateBalance();
+				updateClock();
+			}
+		});
 
-        reservedLabel.setText(
-            String.valueOf(student.getAllowance().getReserved()));
+		// Window settings
+		setTitle("GPU Utilization Management - Student");
+		setSize(600, 500);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+	}
 
-        availableLabel.setText(
-            String.valueOf(student.getAllowance().getAvailable()));
-    }
+	// Update GPU minute balances
+	public void updateBalance() {
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
+		allocatedLabel.setText(String.valueOf(student.getAllowance().getAllocated()));
 
-        if (e.getSource() == submitJobButton) {
+		usedLabel.setText(String.valueOf(student.getAllowance().getUsed()));
 
-            // Open job submission with the shared scheduler
-            new SubmitJobFrame(scheduler, student);
+		reservedLabel.setText(String.valueOf(student.getAllowance().getReserved()));
 
-        } else if (e.getSource() == myJobsButton) {
+		availableLabel.setText(String.valueOf(student.getAllowance().getAvailable()));
+	}
 
-            // Open My Jobs with the shared scheduler
-            new MyJobsFrame(scheduler, student);
+	// Update simulated time
+	public void updateClock() {
 
-        } else if (e.getSource() == refreshButton) {
+		if (scheduler.getClock().isSet()) {
 
-            updateBalance();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-        } else if (e.getSource() == logoutButton) {
+			clockLabel.setText(scheduler.getClock().getNow().format(formatter));
 
-            // Return to login with the same shared objects
-            new LoginFrame(data, accountService, scheduler);
-            dispose();
-        }
-    }
+		} else {
+
+			clockLabel.setText("Not Set");
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+
+		if (e.getSource() == submitJobButton) {
+
+			// Open job submission
+			new SubmitJobFrame(scheduler, student);
+
+		} else if (e.getSource() == myJobsButton) {
+
+			// Open student's jobs
+			new MyJobsFrame(scheduler, student);
+
+		} else if (e.getSource() == refreshButton) {
+
+			// Refresh balances and simulated time
+			updateBalance();
+			updateClock();
+
+		} else if (e.getSource() == logoutButton) {
+
+			// Return to login with shared objects
+			new LoginFrame(data, accountService, scheduler);
+			dispose();
+		}
+	}
 }
