@@ -57,7 +57,7 @@ public class StudentFrame extends JFrame implements ActionListener {
         submitJobButton = new JButton("Submit GPU Job");
         myJobsButton = new JButton("My Jobs");
 
-        // Action listeners
+        // Add action listeners
         refreshButton.addActionListener(this);
         logoutButton.addActionListener(this);
         submitJobButton.addActionListener(this);
@@ -119,11 +119,13 @@ public class StudentFrame extends JFrame implements ActionListener {
 
         if (e.getSource() == submitJobButton) {
 
-            new SubmitJobFrame();
+            // Open job submission with the shared scheduler
+            new SubmitJobFrame(scheduler, student);
 
         } else if (e.getSource() == myJobsButton) {
 
-            new MyJobsFrame(data, student);
+            // Open My Jobs with the shared scheduler
+            new MyJobsFrame(scheduler, student);
 
         } else if (e.getSource() == refreshButton) {
 
@@ -131,6 +133,7 @@ public class StudentFrame extends JFrame implements ActionListener {
 
         } else if (e.getSource() == logoutButton) {
 
+            // Return to login with the same shared objects
             new LoginFrame(data, accountService, scheduler);
             dispose();
         }
