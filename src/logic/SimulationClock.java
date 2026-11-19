@@ -1,15 +1,12 @@
 package logic;
-import java.time.LocalDateTime;
+import java.time.*;
 
 public class SimulationClock {
 private int year, month, day, hour, minute;
 private boolean isSet;
 private int elapsedMinutes=0;
 
-public SimulationClock() {
-//int attributes will be assigned values of 0 automatically by java, isSet is also false
-}
-
+public SimulationClock() {}
 
 //getters
 public int getYear() {

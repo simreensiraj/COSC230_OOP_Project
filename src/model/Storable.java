@@ -1,6 +1,6 @@
 package model;
 
-import java.util.ArrayList;
+import java.util.*;
 
 // anything we save to a file. each object = one line
 // every class that implements this also has a static fromLine() to read the line back

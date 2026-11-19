@@ -1,6 +1,6 @@
 package model;
 
-import java.time.LocalDateTime;
+import java.time.*;
 
 // one submitted job. the student only types title, application, description and size,
 // the system fills in the rest

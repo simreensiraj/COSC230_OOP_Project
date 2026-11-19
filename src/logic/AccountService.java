@@ -1,13 +1,7 @@
 package logic;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import model.AccessRequest;
-import model.Administrator;
-import model.AppData;
-import model.RequestStatus;
-import model.Student;
-import model.TimeGrant;
-import model.User;
+import java.time.*;
+import java.util.*;
+import model.*;
 
 // registration, login, approving/rejecting requests and granting time
 public class AccountService {

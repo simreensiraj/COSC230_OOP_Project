@@ -9,8 +9,7 @@ public class Student extends User implements Storable {
     private String phone;
     private TimeAllowance allowance;
 
-    public Student(String universityId, String password, String name, String email, String phone,
-            TimeAllowance allowance) {
+    public Student(String universityId, String password, String name, String email, String phone,TimeAllowance allowance) {
         super(universityId, password);
         this.name = name;
         this.email = email;

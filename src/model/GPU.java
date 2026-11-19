@@ -1,6 +1,6 @@
 package model;
 
-import java.time.LocalDateTime;
+import java.time.*;
 
 // one of the 4 gpus, runs one job at a time
 public class GPU {
