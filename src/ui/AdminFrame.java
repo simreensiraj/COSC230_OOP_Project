@@ -23,6 +23,7 @@ public class AdminFrame extends JFrame {
     private DashboardPanel dashboardPanel;
     private RequestsPanel requestsPanel;
     private StudentsPanel studentsPanel;
+    private AllJobsPanel allJobsPanel;
 
     public AdminFrame(AppData data, AccountService accountService,
             Administrator admin) {
@@ -58,27 +59,24 @@ public class AdminFrame extends JFrame {
         // Administrator tabs
         tabs = new JTabbedPane();
 
-        // Dashboard
         dashboardPanel = new DashboardPanel(
                 data, Main.scheduler, Main.clock);
         tabs.addTab("Dashboard", dashboardPanel);
 
-        // Registration Requests
         requestsPanel = new RequestsPanel(
                 data, accountService, admin);
         tabs.addTab("Requests", requestsPanel);
 
-        // Students management
         studentsPanel = new StudentsPanel(
                 data, accountService, admin, Main.scheduler);
         tabs.addTab("Students", studentsPanel);
 
-        // All Jobs will be implemented next
-        tabs.addTab("All Jobs", createPlaceholder("All Jobs"));
+        allJobsPanel = new AllJobsPanel(Main.scheduler);
+        tabs.addTab("All Jobs", allJobsPanel);
 
         add(tabs, BorderLayout.CENTER);
 
-        // Set the simulation clock
+        // Set simulation clock
         setupButton.addActionListener(e -> showClockSetup());
 
         // Advance simulation by one minute
@@ -112,7 +110,7 @@ public class AdminFrame extends JFrame {
             new LoginFrame(data, accountService, Main.scheduler);
         });
 
-        // Refresh the selected tab
+        // Refresh tab when selected
         tabs.addChangeListener(e -> {
 
             if (tabs.getSelectedComponent() == dashboardPanel) {
@@ -125,6 +123,10 @@ public class AdminFrame extends JFrame {
 
             if (tabs.getSelectedComponent() == studentsPanel) {
                 studentsPanel.refreshStudents();
+            }
+
+            if (tabs.getSelectedComponent() == allJobsPanel) {
+                allJobsPanel.refreshJobs();
             }
         });
 
@@ -178,20 +180,6 @@ public class AdminFrame extends JFrame {
         dashboardPanel.refreshDashboard();
         requestsPanel.refreshRequests();
         studentsPanel.refreshStudents();
-    }
-
-    private JPanel createPlaceholder(String text) {
-
-        JPanel panel = new JPanel(new BorderLayout());
-
-        JLabel label = new JLabel(
-                text + " - Coming soon",
-                SwingConstants.CENTER);
-
-        label.setFont(new Font("Arial", Font.PLAIN, 18));
-
-        panel.add(label, BorderLayout.CENTER);
-
-        return panel;
+        allJobsPanel.refreshJobs();
     }
 }
