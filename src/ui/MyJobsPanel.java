@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import logic.Scheduler;
 import model.Student;
@@ -14,277 +15,367 @@ import model.JobStatus;
 
 public class MyJobsPanel extends JPanel implements ActionListener {
 
-	// Shared objects
-	Scheduler scheduler;
-	Student student;
+    // Shared objects
+    Scheduler scheduler;
+    Student student;
 
-	// Components
-	JTextField searchField;
-	JComboBox<String> statusBox;
-	JButton searchButton;
-	JButton refreshButton;
-	JButton cancelButton;
+    // Components
+    JTextField searchField;
+    JComboBox<String> statusBox;
+    JButton searchButton;
+    JButton refreshButton;
+    JButton cancelButton;
 
-	JTable jobsTable;
-	DefaultTableModel tableModel;
+    JTable jobsTable;
+    DefaultTableModel tableModel;
 
-	DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    DateTimeFormatter timeFormat =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-	public MyJobsPanel(Scheduler scheduler, Student student) {
+    public MyJobsPanel(Scheduler scheduler, Student student) {
 
-		this.scheduler = scheduler;
-		this.student = student;
+        this.scheduler = scheduler;
+        this.student = student;
 
-		setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(10, 10));
 
-		// Search panel
-		JPanel searchPanel = new JPanel(new FlowLayout());
+        // Search panel
+        JPanel searchPanel = new JPanel(new FlowLayout());
 
-		searchField = new JTextField(20);
+        searchField = new JTextField(20);
 
-		statusBox = new JComboBox<String>(new String[] { "All", "QUEUED", "RUNNING", "COMPLETED", "CANCELLED" });
+        statusBox = new JComboBox<String>(
+                new String[] {
+                        "All",
+                        "QUEUED",
+                        "RUNNING",
+                        "COMPLETED",
+                        "CANCELLED"
+                });
 
-		searchButton = new JButton("Search");
-		refreshButton = new JButton("Refresh");
+        searchButton = new JButton("Search");
+        refreshButton = new JButton("Refresh");
 
-		searchButton.addActionListener(this);
-		refreshButton.addActionListener(this);
-		statusBox.addActionListener(this);
+        searchButton.addActionListener(this);
+        refreshButton.addActionListener(this);
+        statusBox.addActionListener(this);
 
-		searchPanel.add(new JLabel("Search Jobs:"));
-		searchPanel.add(searchField);
-		searchPanel.add(new JLabel("Status:"));
-		searchPanel.add(statusBox);
-		searchPanel.add(searchButton);
-		searchPanel.add(refreshButton);
+        searchPanel.add(new JLabel("Search Jobs:"));
+        searchPanel.add(searchField);
 
-		add(searchPanel, BorderLayout.NORTH);
+        searchPanel.add(new JLabel("Status:"));
+        searchPanel.add(statusBox);
 
-		// Jobs table
-		String[] columns = { "Job ID", "Title", "Application", "Task Size", "Duration", "Status", "GPU", "Submitted",
-				"Start", "Finish", "Queue Position", "Wait" };
+        searchPanel.add(searchButton);
+        searchPanel.add(refreshButton);
 
-		tableModel = new DefaultTableModel(columns, 0) {
+        add(searchPanel, BorderLayout.NORTH);
 
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-		};
+        // Jobs table
+        String[] columns = {
+                "Job ID",
+                "Title",
+                "Application",
+                "Task Size",
+                "Duration",
+                "Status",
+                "GPU",
+                "Submitted",
+                "Start",
+                "Finish",
+                "Queue Position",
+                "Wait"
+        };
 
-		jobsTable = new JTable(tableModel);
-		jobsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableModel = new DefaultTableModel(columns, 0) {
 
-		jobsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
-		add(new JScrollPane(jobsTable), BorderLayout.CENTER);
+        jobsTable = new JTable(tableModel);
 
-		// Bottom panel
-		JPanel bottomPanel = new JPanel(new FlowLayout());
+        jobsTable.setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION);
 
-		cancelButton = new JButton("Cancel Selected Job");
-		cancelButton.addActionListener(this);
+        jobsTable.setAutoResizeMode(
+                JTable.AUTO_RESIZE_OFF);
 
-		bottomPanel.add(cancelButton);
+        add(new JScrollPane(jobsTable), BorderLayout.CENTER);
 
-		add(bottomPanel, BorderLayout.SOUTH);
+        // Bottom panel
+        JPanel bottomPanel = new JPanel(new FlowLayout());
 
-		refreshJobs();
-	}
+        cancelButton = new JButton("Cancel Selected Job");
+        cancelButton.addActionListener(this);
 
-	// Format simulated date and time
-	public String formatTime(LocalDateTime time) {
+        bottomPanel.add(cancelButton);
 
-		if (time == null) {
-			return "-";
-		}
+        add(bottomPanel, BorderLayout.SOUTH);
 
-		return time.format(timeFormat);
-	}
+        // Display existing jobs
+        refreshJobs();
+    }
 
-	public void refreshJobs() {
+    // Format simulated date and time
+    public String formatTime(LocalDateTime time) {
 
-		tableModel.setRowCount(0);
+        if (time == null) {
+            return "-";
+        }
 
-		String searchText = searchField.getText().trim().toLowerCase();
+        return time.format(timeFormat);
+    }
 
-		String selectedStatus = (String) statusBox.getSelectedItem();
+    // Refresh the student's jobs
+    public void refreshJobs() {
 
-		for (Job job : scheduler.getJobsOf(student.getUniversityId())) {
+        tableModel.setRowCount(0);
 
-			String jobId = job.getJobId();
-			String title = job.getTitle();
-			String application = job.getApplicationName();
+        String searchText =
+                searchField.getText().trim().toLowerCase();
 
-			// Search by ID, title, or application
-			if (!searchText.isEmpty() && !jobId.toLowerCase().contains(searchText)
-					&& !title.toLowerCase().contains(searchText) && !application.toLowerCase().contains(searchText)) {
+        String selectedStatus =
+                (String) statusBox.getSelectedItem();
 
-				continue;
-			}
+        // Show only this student's jobs
+        for (Job job : scheduler.getJobsOf(
+                student.getUniversityId())) {
 
-			// Filter by status
-			if (!selectedStatus.equals("All") && !job.getStatus().toString().equals(selectedStatus)) {
+            String jobId = job.getJobId();
+            String title = job.getTitle();
+            String application = job.getApplicationName();
 
-				continue;
-			}
+            // Search by job ID, title, or application
+            if (!searchText.isEmpty()
+                    && !jobId.toLowerCase().contains(searchText)
+                    && !title.toLowerCase().contains(searchText)
+                    && !application.toLowerCase().contains(searchText)) {
 
-			// GPU assignment
-			String gpu = "Not Assigned";
+                continue;
+            }
 
-			if (job.getAssignedGpuId() != 0) {
-				gpu = "GPU" + job.getAssignedGpuId();
-			}
+            // Filter by status
+            if (!selectedStatus.equals("All")
+                    && !job.getStatus().toString()
+                            .equals(selectedStatus)) {
 
-			String start = formatTime(job.getStartTime());
-			String finish = formatTime(job.getFinishTime());
-			String queuePosition = "-";
-			String wait = "-";
+                continue;
+            }
 
-			// Queued jobs have predicted times
-			if (job.getStatus() == JobStatus.QUEUED) {
+            // GPU assignment
+            String gpu = "Not Assigned";
 
-				queuePosition = String.valueOf(scheduler.getQueuePosition(job));
+            if (job.getAssignedGpuId() != 0) {
+                gpu = "GPU" + job.getAssignedGpuId();
+            }
 
-				start = formatTime(scheduler.getPredictedStart(job));
+            String start = formatTime(job.getStartTime());
+            String finish = formatTime(job.getFinishTime());
 
-				finish = formatTime(scheduler.getPredictedFinish(job));
+            String queuePosition = "-";
+            String wait = "-";
 
-				wait = scheduler.getWaitMinutes(job) + " min";
+            // Queued jobs have predicted times
+            if (job.getStatus() == JobStatus.QUEUED) {
 
-			} else if (job.getStatus() == JobStatus.RUNNING) {
+                queuePosition = String.valueOf(
+                        scheduler.getQueuePosition(job));
 
-				// Running jobs have an actual start
-				// and an expected finish
-				finish = formatTime(job.getExpectedFinish());
+                LocalDateTime predictedStart =
+                        scheduler.getPredictedStart(job);
 
-				wait = String.valueOf(
-						java.time.temporal.ChronoUnit.MINUTES.between(job.getSubmissionTime(), job.getStartTime()))
-						+ " min";
+                LocalDateTime predictedFinish =
+                        scheduler.getPredictedFinish(job);
 
-			} else if (job.getStartTime() != null) {
+                if (predictedStart != null) {
+                    start = "\u2248 " + formatTime(predictedStart);
+                }
 
-				// Completed or cancelled running jobs
-				wait = String.valueOf(
-						java.time.temporal.ChronoUnit.MINUTES.between(job.getSubmissionTime(), job.getStartTime()))
-						+ " min";
-			}
+                if (predictedFinish != null) {
+                    finish = "\u2248 " + formatTime(predictedFinish);
+                }
 
-			Object[] row = { jobId, title, application, job.getTaskSize(), job.getEstimatedDuration() + " min",
-					job.getStatus(), gpu, formatTime(job.getSubmissionTime()), start, finish, queuePosition, wait };
+                wait = scheduler.getWaitMinutes(job) + " min";
 
-			tableModel.addRow(row);
-		}
-	}
+            } else if (job.getStatus() == JobStatus.RUNNING) {
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
+                // Actual start and expected finish
+                LocalDateTime expectedFinish =
+                        job.getExpectedFinish();
 
-		if (e.getSource() == searchButton || e.getSource() == statusBox) {
+                if (expectedFinish != null) {
+                    finish = "\u2248 " + formatTime(expectedFinish);
+                }
 
-			refreshJobs();
+                if (job.getStartTime() != null) {
 
-		} else if (e.getSource() == refreshButton) {
+                    long waitMinutes = ChronoUnit.MINUTES.between(
+                            job.getSubmissionTime(),
+                            job.getStartTime());
 
-			searchField.setText("");
-			statusBox.setSelectedItem("All");
-			refreshJobs();
+                    wait = waitMinutes + " min";
+                }
 
-		} else if (e.getSource() == cancelButton) {
+            } else if (job.getStartTime() != null) {
 
-			int selectedRow = jobsTable.getSelectedRow();
+                // Completed or cancelled running jobs
+                long waitMinutes = ChronoUnit.MINUTES.between(
+                        job.getSubmissionTime(),
+                        job.getStartTime());
 
-			if (selectedRow == -1) {
+                wait = waitMinutes + " min";
+            }
 
-				JOptionPane.showMessageDialog(this, "Please select a job first.");
+            // Add job information to table
+            Object[] row = {
+                    jobId,
+                    title,
+                    application,
+                    job.getTaskSize(),
+                    job.getEstimatedDuration() + " min",
+                    job.getStatus(),
+                    gpu,
+                    formatTime(job.getSubmissionTime()),
+                    start,
+                    finish,
+                    queuePosition,
+                    wait
+            };
 
-				return;
-			}
+            tableModel.addRow(row);
+        }
+    }
 
-			String jobId = tableModel.getValueAt(selectedRow, 0).toString();
+    @Override
+    public void actionPerformed(ActionEvent e) {
 
-			Job selectedJob = null;
+        if (e.getSource() == searchButton
+                || e.getSource() == statusBox) {
 
-			for (Job job : scheduler.getJobsOf(student.getUniversityId())) {
+            refreshJobs();
 
-				if (job.getJobId().equals(jobId)) {
-					selectedJob = job;
-					break;
-				}
-			}
+        } else if (e.getSource() == refreshButton) {
 
-			if (selectedJob == null) {
+            // Refresh without clearing search or status
+            refreshJobs();
 
-				JOptionPane.showMessageDialog(this, "Job not found.");
+        } else if (e.getSource() == cancelButton) {
 
-				return;
-			}
+            int selectedRow = jobsTable.getSelectedRow();
 
-			// Only queued or running jobs can be cancelled
-			if (selectedJob.getStatus() != JobStatus.QUEUED && selectedJob.getStatus() != JobStatus.RUNNING) {
+            if (selectedRow == -1) {
 
-				JOptionPane.showMessageDialog(this, "This job cannot be cancelled.");
+                JOptionPane.showMessageDialog(
+                        this, "Please select a job first.");
+                return;
+            }
 
-				return;
-			}
+            String jobId =
+                    tableModel.getValueAt(selectedRow, 0).toString();
 
-			// Check simulation clock
-			if (!scheduler.getClock().isSet()) {
+            Job selectedJob = null;
 
-				JOptionPane.showMessageDialog(this, "Simulation clock is not set.");
+            // Find selected job belonging to this student
+            for (Job job : scheduler.getJobsOf(
+                    student.getUniversityId())) {
 
-				return;
-			}
+                if (job.getJobId().equals(jobId)) {
+                    selectedJob = job;
+                    break;
+                }
+            }
 
-			// Calculate the charge before cancellation
-			int charge = 0;
+            if (selectedJob == null) {
 
-			if (selectedJob.getStatus() == JobStatus.RUNNING) {
+                JOptionPane.showMessageDialog(
+                        this, "Job not found.");
+                return;
+            }
 
-				charge = selectedJob.getMinutesRun(scheduler.getClock().getNow());
-			}
+            // Only queued or running jobs can be cancelled
+            if (selectedJob.getStatus() != JobStatus.QUEUED
+                    && selectedJob.getStatus() != JobStatus.RUNNING) {
 
-			// Ask for cancellation reason
-			String reason = JOptionPane.showInputDialog(this, "Enter cancellation reason:");
+                JOptionPane.showMessageDialog(
+                        this, "This job cannot be cancelled.");
+                return;
+            }
 
-			if (reason == null) {
-				return;
-			}
+            // Check simulation clock
+            if (!scheduler.getClock().isSet()) {
 
-			reason = reason.trim();
+                JOptionPane.showMessageDialog(
+                        this, "Simulation clock is not set.");
+                return;
+            }
 
-			if (reason.isEmpty()) {
+            // Calculate charge before cancellation
+            int charge = 0;
 
-				JOptionPane.showMessageDialog(this, "Cancellation reason is required.");
+            if (selectedJob.getStatus() == JobStatus.RUNNING) {
 
-				return;
-			}
+                charge = selectedJob.getMinutesRun(
+                        scheduler.getClock().getNow());
+            }
 
-			// Confirm cancellation and show charge
-			int confirm = JOptionPane.showConfirmDialog(this,
-					"Cancel job " + jobId + "?\n" + "GPU minutes charged: " + charge + "\n" + "Reason: " + reason,
-					"Confirm Cancellation", JOptionPane.YES_NO_OPTION);
+            // Ask for cancellation reason
+            String reason = JOptionPane.showInputDialog(
+                    this, "Enter cancellation reason:");
 
-			if (confirm != JOptionPane.YES_OPTION) {
-				return;
-			}
+            if (reason == null) {
+                return;
+            }
 
-			try {
+            reason = reason.trim();
 
-				scheduler.cancel(selectedJob, student.getUniversityId(), reason);
+            if (reason.isEmpty()) {
 
-				JOptionPane.showMessageDialog(this, "Job cancelled successfully.");
+                JOptionPane.showMessageDialog(
+                        this, "Cancellation reason is required.");
+                return;
+            }
 
-				refreshJobs();
+            // Confirm cancellation and show charge
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Cancel job " + jobId + "?"
+                    + "\nGPU minutes charged: " + charge
+                    + "\nReason: " + reason,
+                    "Confirm Cancellation",
+                    JOptionPane.YES_NO_OPTION
+            );
 
-			} catch (IllegalArgumentException ex) {
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
 
-				JOptionPane.showMessageDialog(this, ex.getMessage());
+            try {
 
-			} catch (IllegalStateException ex) {
+                // Cancel through shared scheduler
+                scheduler.cancel(
+                        selectedJob,
+                        student.getUniversityId(),
+                        reason);
 
-				JOptionPane.showMessageDialog(this, ex.getMessage());
-			}
-		}
-	}
+                JOptionPane.showMessageDialog(
+                        this, "Job cancelled successfully.");
+
+                // Update table after cancellation
+                refreshJobs();
+
+            } catch (IllegalArgumentException ex) {
+
+                JOptionPane.showMessageDialog(
+                        this, ex.getMessage());
+
+            } catch (IllegalStateException ex) {
+
+                JOptionPane.showMessageDialog(
+                        this, ex.getMessage());
+            }
+        }
+    }
 }
