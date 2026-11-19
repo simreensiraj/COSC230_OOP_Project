@@ -120,6 +120,7 @@ public class SubmitJobFrame extends JFrame implements ActionListener {
 			TaskSize selectedSize = (TaskSize) sizeBox.getSelectedItem();
 
 			if (selectedSize == null) {
+
 				JOptionPane.showMessageDialog(this, "Please select a task size.");
 				return;
 			}
@@ -131,13 +132,35 @@ public class SubmitJobFrame extends JFrame implements ActionListener {
 				return;
 			}
 
+			// Check available GPU minutes
+			int duration = selectedSize.getDuration();
+			int available = student.getAllowance().getAvailable();
+
+			if (duration > available) {
+
+				JOptionPane.showMessageDialog(this, "Insufficient GPU minutes." + "\nRequired: " + duration + " minutes"
+						+ "\nAvailable: " + available + " minutes");
+				return;
+			}
+
+			// Confirm job details before submission
+			int confirm = JOptionPane.showConfirmDialog(this,
+					"Job Title: " + title + "\nApplication: " + application + "\nTask Size: " + selectedSize
+							+ "\nEstimated Duration: " + duration + " minutes" + "\nAvailable GPU Minutes: " + available
+							+ "\n\nDo you want to submit this job?",
+					"Confirm Job Submission", JOptionPane.YES_NO_OPTION);
+
+			if (confirm != JOptionPane.YES_OPTION) {
+				return;
+			}
+
 			try {
 
-				// Submit the job through Mariam's scheduler
+				// Submit through the shared scheduler
 				Job job = scheduler.submit(student.getUniversityId(), title, application, description, selectedSize);
 
-				JOptionPane.showMessageDialog(this, "Job submitted successfully!\n" + "Job ID: " + job.getJobId() + "\n"
-						+ "Status: " + job.getStatus());
+				JOptionPane.showMessageDialog(this,
+						"Job submitted successfully!" + "\nJob ID: " + job.getJobId() + "\nStatus: " + job.getStatus());
 
 				dispose();
 
