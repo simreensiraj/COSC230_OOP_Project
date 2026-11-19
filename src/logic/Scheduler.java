@@ -9,18 +9,16 @@ private SimulationClock clock;
 private Map<String, Student> students;
 private GPU [] gpus;
 private List<Job> jobs;
-private int nextJobNumber;
 
-public Scheduler (SimulationClock clock,Map<String, Student> students) {
-	gpus = new GPU[4];
-	gpus[0]=new GPU(1);
-	gpus[1]= new GPU(2);
-	gpus[2]=new GPU(3);
-	gpus[3]=new GPU(4);
-	this.clock = clock;
-	this.students=students;
-	jobs=new ArrayList<>();
-	nextJobNumber=101;
+
+private AppData data;
+
+public Scheduler(SimulationClock clock, AppData data) {
+    this.clock = clock;
+    this.data = data;
+    this.students = data.getStudents();   
+    this.jobs = data.getJobs();           // same list DataStore saves and loads
+    this.gpus = data.getGpus();           // same 4 GPUs (AppData creates them)
 }
 
 private TimeAllowance allowanceOf(String studentId) {
@@ -35,10 +33,9 @@ public Job submit(String studentId, String title, String applicationName, String
 	if (!clock.isSet())
 		throw new IllegalStateException ("The simulation clock has not been set yet.");
 	allowanceOf(studentId).reserve(size.getDuration());
-	String id="J"+nextJobNumber;
+	String id = data.nextJobId();
 	Job job= new Job(id, studentId, title, applicationName, description, size, clock.getNow());
 	jobs.add(job);
-	nextJobNumber++;
 	dispatch();
 	return job;
 	//Why reserve first: if the student doesn’t have enough time, reserve throws an exception. 
@@ -221,22 +218,10 @@ public SimulationClock getClock() {
     return clock;
 }
 
-public void loadJob(Job job) {
- jobs.add(job);
-
-
- if (job.getStatus() == JobStatus.RUNNING) {
-     gpus[job.getAssignedGpuId() - 1].assign(job);
- }
-
-
- int number = Integer.parseInt(job.getJobId().substring(1));  
- if (number >= nextJobNumber) {
-     nextJobNumber = number + 1;
- }
-}
 
 }
+
+
 
 
 
