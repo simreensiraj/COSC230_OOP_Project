@@ -13,25 +13,17 @@ public int getYear() {
 	return year;
 }
 
-
-
 public int getMonth() {
 	return month;
 }
-
-
 
 public int getDay() {
 	return day;
 }
 
-
-
 public int getHour() {
 	return hour;
 }
-
-
 
 public int getMinute() {
 	return minute;
@@ -40,7 +32,7 @@ public int getMinute() {
 public  LocalDateTime getNow() {
 	//must check that clock is set before using LocalDateTime.of
 			if (!this.isSet()) return null;
-			
+		
 			return LocalDateTime.of(year, month, day, hour, minute);
 		}
 
