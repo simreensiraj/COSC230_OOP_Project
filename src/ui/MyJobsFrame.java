@@ -1,21 +1,45 @@
 package ui;
 
 import javax.swing.*;
+import java.awt.event.*;
 
-import model.AppData;
+import logic.Scheduler;
 import model.Student;
 
 public class MyJobsFrame extends JFrame {
 
-	public MyJobsFrame(AppData data, Student student) {
+    // Shared objects
+    Scheduler scheduler;
+    Student student;
 
-		setTitle("GPU Utilization Management - My Jobs");
+    // My Jobs panel
+    MyJobsPanel myJobsPanel;
 
-		add(new MyJobsPanel(data, student));
+    public MyJobsFrame(Scheduler scheduler, Student student) {
 
-		setSize(950, 500);
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setVisible(true);
-	}
+        this.scheduler = scheduler;
+        this.student = student;
+
+        // Create My Jobs panel
+        myJobsPanel = new MyJobsPanel(scheduler, student);
+
+        add(myJobsPanel);
+
+        // Refresh when the window becomes active
+        addWindowFocusListener(new WindowAdapter() {
+
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+
+                myJobsPanel.refreshJobs();
+            }
+        });
+
+        // Window settings
+        setTitle("GPU Utilization Management - My Jobs");
+        setSize(1100, 500);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setVisible(true);
+    }
 }

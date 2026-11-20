@@ -6,6 +6,7 @@ import java.awt.event.*;
 
 import logic.AccountService;
 import logic.ValidationException;
+import logic.Scheduler;
 import model.AppData;
 
 public class StudentRegistrationFrame extends JFrame implements ActionListener {
@@ -24,11 +25,13 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 	// Shared objects
 	AppData data;
 	AccountService accountService;
+	Scheduler scheduler;
 
-	public StudentRegistrationFrame(AppData data, AccountService accountService) {
+	public StudentRegistrationFrame(AppData data, AccountService accountService, Scheduler scheduler) {
 
 		this.data = data;
 		this.accountService = accountService;
+		this.scheduler = scheduler;
 
 		GridLayout layout = new GridLayout(6, 2);
 		setLayout(layout);
@@ -94,9 +97,8 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 
 		} else if (e.getSource() == backButton) {
 
-			new LoginFrame(data, accountService);
+			new LoginFrame(data, accountService, scheduler);
 			dispose();
-
 		}
 	}
 
@@ -105,7 +107,8 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 
 		AppData data = new AppData();
 		AccountService accountService = new AccountService(data);
+		Scheduler scheduler = new Scheduler(new logic.SimulationClock(), data);
 
-		new StudentRegistrationFrame(data, accountService);
+		new StudentRegistrationFrame(data, accountService, scheduler);
 	}
 }

@@ -1,3 +1,4 @@
+
 package ui;
 
 import java.awt.BorderLayout;
@@ -12,87 +13,173 @@ import model.AppData;
 
 public class AdminFrame extends JFrame {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private JLabel clockLabel;
-	private JTabbedPane tabs;
+    private JLabel clockLabel;
+    private JButton advanceButton;
+    private JButton setupButton;
+    private JTabbedPane tabs;
 
-	public AdminFrame(AppData data, AccountService accountService, Administrator admin) {
+    private DashboardPanel dashboardPanel;
+    private RequestsPanel requestsPanel;
+    private StudentsPanel studentsPanel;
+    private AllJobsPanel allJobsPanel;
 
-		setTitle("GPU Utilization Management - Administrator");
-		setSize(1000, 650);
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setLayout(new BorderLayout());
+    public AdminFrame(AppData data, AccountService accountService,
+            Administrator admin) {
 
-		// Top section
-		JPanel topPanel = new JPanel(new BorderLayout());
+        setTitle("GPU Utilization Management - Administrator");
+        setSize(1100, 700);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
 
-		JLabel titleLabel = new JLabel("GPU Utilization Dashboard");
-		titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
-		topPanel.add(titleLabel, BorderLayout.WEST);
+        // Top section
+        JPanel topPanel = new JPanel(new BorderLayout());
 
-		JPanel buttonPanel = new JPanel(new FlowLayout());
+        JLabel titleLabel = new JLabel("GPU Utilization Dashboard");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        topPanel.add(titleLabel, BorderLayout.WEST);
 
-		clockLabel = new JLabel("Simulated time: Not set");
+        JPanel buttonPanel = new JPanel(new FlowLayout());
 
-		JButton advanceButton = new JButton("+1 minute");
-		JButton logoutButton = new JButton("Log out");
+        clockLabel = new JLabel();
+        setupButton = new JButton("Set Clock");
+        advanceButton = new JButton("+1 minute");
+        JButton logoutButton = new JButton("Log out");
 
-		// Connect to the simulated clock during integration
-		advanceButton.setEnabled(false);
+        buttonPanel.add(clockLabel);
+        buttonPanel.add(setupButton);
+        buttonPanel.add(advanceButton);
+        buttonPanel.add(logoutButton);
 
-		// Return to login using the same shared objects
-		logoutButton.addActionListener(e -> {
-			new LoginFrame(data, accountService);
-			dispose();
-		});
+        topPanel.add(buttonPanel, BorderLayout.EAST);
+        add(topPanel, BorderLayout.NORTH);
 
-		buttonPanel.add(clockLabel);
-		buttonPanel.add(advanceButton);
-		buttonPanel.add(logoutButton);
+        // Administrator tabs
+        tabs = new JTabbedPane();
 
-		topPanel.add(buttonPanel, BorderLayout.EAST);
-		add(topPanel, BorderLayout.NORTH);
+        dashboardPanel = new DashboardPanel(
+                data, Main.scheduler, Main.clock);
+        tabs.addTab("Dashboard", dashboardPanel);
 
-		// Administrator tabs
-		tabs = new JTabbedPane();
+        requestsPanel = new RequestsPanel(
+                data, accountService, admin);
+        tabs.addTab("Requests", requestsPanel);
 
-		tabs.addTab("Dashboard", createPlaceholder("Dashboard"));
+        studentsPanel = new StudentsPanel(
+                data, accountService, admin, Main.scheduler);
+        tabs.addTab("Students", studentsPanel);
 
-		tabs.addTab("Requests", new RequestsPanel(data, accountService, admin));
+        allJobsPanel = new AllJobsPanel(Main.scheduler);
+        tabs.addTab("All Jobs", allJobsPanel);
 
-		tabs.addTab("Students", createPlaceholder("Students"));
-		tabs.addTab("All Jobs", createPlaceholder("All Jobs"));
+        add(tabs, BorderLayout.CENTER);
 
-		add(tabs, BorderLayout.CENTER);
-	}
+        // Set simulation clock
+        setupButton.addActionListener(e -> showClockSetup());
 
-	private JPanel createPlaceholder(String text) {
+        // Advance simulation by one minute
+        advanceButton.addActionListener(e -> {
 
-		JPanel panel = new JPanel(new BorderLayout());
+            try {
+                boolean advanced = Main.scheduler.advanceMinute();
 
-		JLabel label = new JLabel(text + " - Coming soon", SwingConstants.CENTER);
+                if (advanced) {
+                    Main.save();
+                    refreshAll();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Please set the simulation clock first.");
+                }
 
-		label.setFont(new Font("Arial", Font.PLAIN, 18));
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(this,
+                        ex.getMessage(),
+                        "Simulation Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
-		panel.add(label, BorderLayout.CENTER);
+        // Logout
+        logoutButton.addActionListener(e -> {
 
-		return panel;
-	}
+            Main.save();
+            dispose();
 
-	// Temporary standalone launcher for UI testing
-	public static void main(String[] args) {
+            new LoginFrame(data, accountService, Main.scheduler);
+        });
 
-		SwingUtilities.invokeLater(() -> {
+        // Refresh tab when selected
+        tabs.addChangeListener(e -> {
 
-			AppData data = new AppData();
-			AccountService accountService = new AccountService(data);
-			Administrator admin = new Administrator();
+            if (tabs.getSelectedComponent() == dashboardPanel) {
+                dashboardPanel.refreshDashboard();
+            }
 
-			AdminFrame frame = new AdminFrame(data, accountService, admin);
+            if (tabs.getSelectedComponent() == requestsPanel) {
+                requestsPanel.refreshRequests();
+            }
 
-			frame.setVisible(true);
-		});
-	}
+            if (tabs.getSelectedComponent() == studentsPanel) {
+                studentsPanel.refreshStudents();
+            }
+
+            if (tabs.getSelectedComponent() == allJobsPanel) {
+                allJobsPanel.refreshJobs();
+            }
+        });
+
+        refreshAll();
+
+        // First-time clock setup
+        SwingUtilities.invokeLater(() -> {
+
+            if (!Main.clock.isSet() && isDisplayable()) {
+                showClockSetup();
+            }
+        });
+    }
+
+    private void showClockSetup() {
+
+        if (Main.clock.isSet()) {
+            return;
+        }
+
+        JDialog dialog = new JDialog(
+                this, "Set Simulation Clock", true);
+
+        dialog.setDefaultCloseOperation(
+                JDialog.DISPOSE_ON_CLOSE);
+
+        dialog.add(new ClockSetupPanel(this::refreshAll));
+
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void refreshAll() {
+
+        if (Main.clock != null && Main.clock.isSet()) {
+
+            clockLabel.setText("Simulated time: " + Main.clock);
+
+            setupButton.setEnabled(false);
+            advanceButton.setEnabled(true);
+
+        } else {
+
+            clockLabel.setText("Simulated time: Not set");
+
+            setupButton.setEnabled(true);
+            advanceButton.setEnabled(false);
+        }
+
+        dashboardPanel.refreshDashboard();
+        requestsPanel.refreshRequests();
+        studentsPanel.refreshStudents();
+        allJobsPanel.refreshJobs();
+    }
 }
