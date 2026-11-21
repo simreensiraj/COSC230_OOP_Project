@@ -23,7 +23,6 @@ import storage.DataStore;
 // (the same calls the windows make), plus cancellations, limits and validation
 // run it as a java application, prints PASS / FAIL for each check
 public class ScenarioTest {
-
     static int failed = 0;
     static AppData data = new AppData();
     static SimulationClock clock = new SimulationClock();
@@ -45,9 +44,7 @@ public class ScenarioTest {
 
     // five approved students with 100 min, two pending requests, one rejected
     static void setUp() throws ValidationException {
-        String[][] st = {
-            {"100031025", "Ali Hassan"}, {"100052210", "Sara Ahmed"}, {"100044318", "Hamad Saeed"},
-            {"100039874", "Mariam Khalid"}, {"100047391", "Noura Salem"}};
+        String[][] st = {{"100031025", "Ali Hassan"}, {"100052210", "Sara Ahmed"}, {"100044318", "Hamad Saeed"}, {"100039874", "Mariam Khalid"}, {"100047391", "Noura Salem"}};
         int n = 1;
         for (String[] r : st) {
             String email = r[1].toLowerCase().replace(' ', '.') + "@ku.ac.ae";
@@ -60,8 +57,7 @@ public class ScenarioTest {
 
     static void beforeClockSet() {
         System.out.println("-- before the clock is set");
-        check("submit before the clock is set", "The simulation clock has not been set yet.",
-                error(() -> s.submit("100031025", "x", "x", "x", TaskSize.SMALL)));
+        check("submit before the clock is set", "The simulation clock has not been set yet.", error(() -> s.submit("100031025", "x", "x", "x", TaskSize.SMALL)));
         check("+1 minute before the clock is set", false, s.advanceMinute());
         clock.setStart(2026, 11, 16, 10, 0);
         check("utilization at time zero", "N/A", s.getUtilization() < 0 ? "N/A" : s.getUtilization());
@@ -88,7 +84,6 @@ public class ScenarioTest {
         s.submit("100044318", "Quick test", "BLAST", "Test run", TaskSize.SMALL);
         s.cancel(job("J110"), "100044318", "Submitted by mistake");
         goTo(10, 20);
-
         check("GPU1", "J105, 18 min left, ends 10:38", gpu(1));
         check("GPU2", "J106, 10 min left, ends 10:30", gpu(2));
         check("GPU3", "J107, 25 min left, ends 10:45", gpu(3));
@@ -99,12 +94,8 @@ public class ScenarioTest {
         check("Ali balance", "100/5/30/65", balance("100031025"));
         check("Sara balance", "100/15/20/65", balance("100052210"));
         check("Hamad balance", "100/15/30/55", balance("100044318"));
-        check("J110 cancelled while queued", "CANCELLED, charged 0",
-                job("J110").getStatus() + ", charged " + job("J110").getMinutesRun(clock.getNow()));
-        check("running/queued/completed/cancelled, busy", "4/2/3/1, 4 of 4",
-                s.countByStatus(JobStatus.RUNNING) + "/" + s.countByStatus(JobStatus.QUEUED) + "/"
-                + s.countByStatus(JobStatus.COMPLETED) + "/" + s.countByStatus(JobStatus.CANCELLED)
-                + ", " + s.getBusyGpuCount() + " of 4");
+        check("J110 cancelled while queued", "CANCELLED, charged 0", job("J110").getStatus() + ", charged " + job("J110").getMinutesRun(clock.getNow()));
+        check("running/queued/completed/cancelled, busy", "4/2/3/1, 4 of 4", s.countByStatus(JobStatus.RUNNING) + "/" + s.countByStatus(JobStatus.QUEUED) + "/" + s.countByStatus(JobStatus.COMPLETED) + "/" + s.countByStatus(JobStatus.CANCELLED) + ", " + s.getBusyGpuCount() + " of 4");
     }
 
     // save at 10:20, load into a new clock and AppData like a restart
@@ -116,14 +107,11 @@ public class ScenarioTest {
         AppData d2 = new DataStore(folder.toString()).load(c2);
         Scheduler s2 = new Scheduler(c2, d2);
         Job j105 = find(d2, "J105"), j108 = find(d2, "J108");
-        check("clock after reload", "16/11/2026 10:20, 20 min elapsed",
-                TimeFormat.format(c2.getNow()) + ", " + c2.getElapsedMinutes() + " min elapsed");
-        check("J105 after reload", "GPU1, 18 min left",
-                "GPU" + j105.getAssignedGpuId() + ", " + j105.getRemainingMinutes(c2.getNow()) + " min left");
+        check("clock after reload", "16/11/2026 10:20, 20 min elapsed", TimeFormat.format(c2.getNow()) + ", " + c2.getElapsedMinutes() + " min elapsed");
+        check("J105 after reload", "GPU1, 18 min left", "GPU" + j105.getAssignedGpuId() + ", " + j105.getRemainingMinutes(c2.getNow()) + " min left");
         check("J108 wait after reload", 10, s2.getWaitMinutes(j108));
         TimeAllowance h = d2.getStudents().get("100044318").getAllowance();
-        check("Hamad balance after reload", "100/15/30/55",
-                h.getAllocated() + "/" + h.getUsed() + "/" + h.getReserved() + "/" + h.getAvailable());
+        check("Hamad balance after reload", "100/15/30/55", h.getAllocated() + "/" + h.getUsed() + "/" + h.getReserved() + "/" + h.getAvailable());
         long pending = d2.getRequests().stream().filter(r -> r.getStatus() == RequestStatus.PENDING).count();
         check("requests after reload (all / pending)", "8 / 2", d2.getRequests().size() + " / " + pending);
     }
@@ -140,14 +128,11 @@ public class ScenarioTest {
 
     static void cancellations() {
         System.out.println("-- cancellations");
-        check("Sara cancels Hamad's job", "Not allowed to cancel this job.",
-                error(() -> s.cancel(job("J107"), "100052210", "test")));
+        check("Sara cancels Hamad's job", "Not allowed to cancel this job.", error(() -> s.cancel(job("J107"), "100052210", "test")));
         s.cancel(job("J107"), "admin", "GPU maintenance");
         check("admin cancels running J107 at 10:21 (Hamad charged 6)", "100/21/0/79", balance("100044318"));
-        check("next job starts on the freed GPU3", "J108 on GPU3 at 10:21",
-                "J108 on GPU" + job("J108").getAssignedGpuId() + " at " + hm(job("J108").getStartTime()));
-        check("cancel a cancelled job again", "Only a queued or running job can be cancelled.",
-                error(() -> s.cancel(job("J107"), "admin", "again")));
+        check("next job starts on the freed GPU3", "J108 on GPU3 at 10:21", "J108 on GPU" + job("J108").getAssignedGpuId() + " at " + hm(job("J108").getStartTime()));
+        check("cancel a cancelled job again", "Only a queued or running job can be cancelled.", error(() -> s.cancel(job("J107"), "admin", "again")));
         check("restart a completed job", true, !error(() -> job("J101").start(1, clock.getNow())).equals("no error"));
     }
 
@@ -158,12 +143,10 @@ public class ScenarioTest {
         check("Ali submits 60 of 65", "100/5/90/5", balance("100031025"));
         s.submit("100031025", "Small check", "Jupyter", "Exact match", TaskSize.SMALL);
         check("Ali submits 5 of 5 (exact match)", "100/5/95/0", balance("100031025"));
-        check("Ali submits with 0 available", true,
-                !error(() -> s.submit("100031025", "One more", "Jupyter", "x", TaskSize.SMALL)).equals("no error"));
+        check("Ali submits with 0 available", true, !error(() -> s.submit("100031025", "One more", "Jupyter", "x", TaskSize.SMALL)).equals("no error"));
         acc.grantTime(admin, data.getStudents().get("100031025"), 20, "Extra runs for final report", clock.getNow());
         check("admin grants Ali 20 min", "120/5/95/20", balance("100031025"));
-        check("grant without a reason", "A reason is required.",
-                error(() -> acc.grantTime(admin, data.getStudents().get("100031025"), 5, " ", clock.getNow())));
+        check("grant without a reason", "A reason is required.", error(() -> acc.grantTime(admin, data.getStudents().get("100031025"), 5, " ", clock.getNow())));
     }
 
     static void registrationAndLogin() {
@@ -184,7 +167,6 @@ public class ScenarioTest {
     }
 
     // ---- helpers
-
     static void goTo(int hour, int minute) {
         while (clock.getNow().getHour() * 60 + clock.getNow().getMinute() < hour * 60 + minute) {
             s.advanceMinute();

@@ -22,7 +22,6 @@ import storage.DataStore;
 // console tests for the model, accounts and storage. run it as a java application
 // prints PASS / FAIL for each check
 public class ModelStorageTest {
-
     static int failed = 0;
 
     public static void main(String[] args) throws Exception {
@@ -41,35 +40,29 @@ public class ModelStorageTest {
         LocalDateTime t = TimeFormat.parse("16/11/2026 10:00");
         Student s = new Student("100052210", "pw", "Sara", "sara@ku.ac.ae", "0501234567", new TimeAllowance(100));
         TimeAllowance a = s.getAllowance();
-
         Job jobA = new Job("J101", "100052210", "A", "app", "d", TaskSize.MEDIUM, t);
         a.reserve(15);
         Job jobB = new Job("J102", "100052210", "B", "app", "d", TaskSize.LARGE, t);
         a.reserve(30);
         check("after A and B", a, 100, 0, 45, 55);
-
         jobA.start(1, t);
         jobB.start(2, t);
         jobA.complete(t.plusMinutes(15));
         a.release(15);
         a.charge(jobA.getMinutesRun(t.plusMinutes(15)));
         check("job A completes", a, 100, 15, 30, 55);
-
         jobB.cancel("100052210", "wrong dataset", t.plusMinutes(12));
         a.release(30);
         a.charge(jobB.getMinutesRun(t.plusMinutes(12)));
         check("job B cancelled after 12 min", a, 100, 27, 0, 73);
-
         a.reserve(60);
         check("job C (60) accepted", a, 100, 27, 60, 13);
-
         try {
             a.reserve(30);
             fail("job D (30) should be rejected");
         } catch (IllegalArgumentException e) {
             check("job D (30) rejected", a, 100, 27, 60, 13);
         }
-
         new Administrator().grantTime(s, 20, "extra runs", t.plusMinutes(20));
         check("admin grants +20", a, 120, 27, 60, 33);
     }
@@ -126,7 +119,6 @@ public class ModelStorageTest {
         AppData data = new AppData();
         AccountService accounts = new AccountService(data);
         Administrator admin = new Administrator();
-
         try {
             accounts.register("100061477", "Omar", "omar.k@ku", "0501234567", "pw");
             fail("bad email accepted");
@@ -135,7 +127,6 @@ public class ModelStorageTest {
         }
         AccessRequest omar = accounts.register("100061477", "Omar Khalid", "omar.k@ku.ac.ae", "0501234567", "pw");
         loginMessage(accounts, "100061477", "pw", "still pending approval");
-
         accounts.approve(admin, omar, AccountService.DEFAULT_MINUTES);
         try {
             accounts.approve(admin, omar, 100);
@@ -153,7 +144,6 @@ public class ModelStorageTest {
         } else {
             fail("admin can sign in");
         }
-
         AccessRequest lina = accounts.register("100063052", "Lina", "lina@ku.ac.ae", "0559876543", "x");
         accounts.reject(admin, lina);
         loginMessage(accounts, "100063052", "x", "rejected");
@@ -170,7 +160,6 @@ public class ModelStorageTest {
         }
         Student s = new Student("100031025", "pw", "Ali", "ali@ku.ac.ae", "0501234567", new TimeAllowance(100, 5, 30));
         data.getStudents().put(s.getUniversityId(), s);
-
         Job done = new Job("J101", "100031025", "t", "app", "has, a comma", TaskSize.SMALL, t);
         done.start(1, t);
         done.complete(t.plusMinutes(5));
@@ -179,12 +168,10 @@ public class ModelStorageTest {
         data.getGpus()[0].assign(running);
         data.getJobs().add(done);
         data.getJobs().add(running);
-
         String folder = Files.createTempDirectory("gpu").toString() + "/data";
         new DataStore(folder).save(data, clock);
         SimulationClock loadedClock = new SimulationClock();
         AppData loaded = new DataStore(folder).load(loadedClock);
-
         Student back = loaded.getStudents().get("100031025");
         check("balance restored", back.getAllowance(), 100, 5, 30, 65);
         same("clock restored", loadedClock.getNow(), t.plusMinutes(20));
@@ -203,7 +190,6 @@ public class ModelStorageTest {
         AppData data = new DataStore(empty).load(clock);
         same("missing files start empty", data.getJobs().size(), 0);
         same("clock not set yet", clock.isSet(), false);
-
         String folder = Files.createTempDirectory("gpu").toString();
         Files.write(Paths.get(folder, "students.csv"), List.of("100031025,pw,Ali,ali@ku.ac.ae,0501234567,100,0,0"));
         Files.write(Paths.get(folder, "jobs.csv"), List.of("J101,100031025,t,app,d,SMALL,16-11-26,QUEUED,0,,,,,"));
@@ -221,7 +207,6 @@ public class ModelStorageTest {
     }
 
     // helpers
-
     static void check(String name, TimeAllowance a, int allocated, int used, int reserved, int available) {
         same(name, a.getAllocated() + "/" + a.getUsed() + "/" + a.getReserved() + "/" + a.getAvailable(), allocated + "/" + used + "/" + reserved + "/" + available);
     }
