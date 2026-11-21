@@ -152,8 +152,8 @@ public class DemoDataGenerator {
                     JobStatus.QUEUED) == 4,
                     "Queued job count is incorrect");
 
-            // Store demonstration data separately
-            DataStore store = new DataStore("demo-data");
+            // Store demonstration data in data/
+            DataStore store = new DataStore("data");
             store.save(data, clock);
 
             // Confirm the files can be loaded again
@@ -169,7 +169,7 @@ public class DemoDataGenerator {
                     "Saved jobs could not be restored");
 
             System.out.println("DEMO DATA CREATED SUCCESSFULLY");
-            System.out.println("Folder: demo-data");
+            System.out.println("Folder: data");
             System.out.println("Students: " +
                     restored.getStudents().size());
             System.out.println("Requests: " +
