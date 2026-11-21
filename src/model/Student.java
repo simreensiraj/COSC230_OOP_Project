@@ -38,11 +38,6 @@ public class Student extends User implements Storable {
     }
 
     @Override
-    public String getDisplayName() {
-        return name;
-    }
-
-    @Override
     public boolean isAdmin() {
         return false;
     }

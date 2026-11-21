@@ -24,8 +24,6 @@ public abstract class User {
         return password;
     }
 
-    // name shown at the top of the window
-    public abstract String getDisplayName();
-
+    // LoginFrame calls this to open the admin or student window
     public abstract boolean isAdmin();
 }

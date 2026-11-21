@@ -97,9 +97,4 @@ public class AccountService {
         data.getGrants().add(grant);
         return grant;
     }
-
-    // null if there's no student with this id
-    public Student findStudent(String universityId) {
-        return data.getStudents().get(universityId.trim());
-    }
 }

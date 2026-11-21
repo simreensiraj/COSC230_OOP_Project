@@ -79,18 +79,17 @@ public class LoginFrame extends JFrame implements ActionListener {
 
                 User user = accountService.login(username, password);
 
-                if (user instanceof Administrator) {
+                // Student and Administrator each override isAdmin()
+                if (user.isAdmin()) {
 
                     new AdminFrame(data, accountService, (Administrator) user).setVisible(true);
 
-                    dispose();
-
-                } else if (user instanceof Student) {
+                } else {
 
                     new StudentFrame(data, accountService, scheduler, (Student) user);
-
-                    dispose();
                 }
+
+                dispose();
 
             } catch (ValidationException ex) {
 

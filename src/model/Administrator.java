@@ -13,11 +13,6 @@ public class Administrator extends User {
     }
 
     @Override
-    public String getDisplayName() {
-        return "Administrator";
-    }
-
-    @Override
     public boolean isAdmin() {
         return true;
     }
