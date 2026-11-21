@@ -7,7 +7,6 @@ import java.time.*;
 // allowed moves: QUEUED -> RUNNING/CANCELLED, RUNNING -> COMPLETED/CANCELLED
 // anything else throws, so a finished job can't restart or get charged twice
 public class Job implements Storable {
-
     private final String jobId;
     private final String studentId;
     private final String title;
@@ -18,15 +17,14 @@ public class Job implements Storable {
     private final int estimatedDuration;
     private final LocalDateTime submissionTime;
     private JobStatus status;
-    private int assignedGpuId;          // 0 until it starts
+    private int assignedGpuId; // 0 until it starts
     private LocalDateTime startTime;
     private LocalDateTime finishTime;
     private LocalDateTime cancelledAt;
     private String cancelledBy;
     private String cancelReason;
 
-    public Job(String jobId, String studentId, String title, String applicationName,
-            String description, TaskSize taskSize, LocalDateTime submissionTime) {
+    public Job(String jobId, String studentId, String title, String applicationName, String description, TaskSize taskSize, LocalDateTime submissionTime) {
         this.jobId = jobId;
         this.studentId = studentId;
         this.title = title;
@@ -168,17 +166,12 @@ public class Job implements Storable {
 
     @Override
     public String toLine() {
-        return Storable.join(jobId, studentId, title, applicationName, description,
-                taskSize.name(), TimeFormat.format(submissionTime), status.name(),
-                String.valueOf(assignedGpuId), TimeFormat.format(startTime),
-                TimeFormat.format(finishTime), TimeFormat.format(cancelledAt),
-                cancelledBy, cancelReason);
+        return Storable.join(jobId, studentId, title, applicationName, description, taskSize.name(), TimeFormat.format(submissionTime), status.name(), String.valueOf(assignedGpuId), TimeFormat.format(startTime), TimeFormat.format(finishTime), TimeFormat.format(cancelledAt), cancelledBy, cancelReason);
     }
 
     public static Job fromLine(String line) {
         String[] v = Storable.split(line, 14);
-        Job job = new Job(v[0], v[1], v[2], v[3], v[4], TaskSize.valueOf(v[5]),
-                TimeFormat.parse(v[6]));
+        Job job = new Job(v[0], v[1], v[2], v[3], v[4], TaskSize.valueOf(v[5]), TimeFormat.parse(v[6]));
         job.status = JobStatus.valueOf(v[7]);
         job.assignedGpuId = Integer.parseInt(v[8]);
         job.startTime = TimeFormat.parse(v[9]);

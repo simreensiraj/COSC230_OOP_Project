@@ -4,10 +4,8 @@ import java.time.*;
 
 // one of the 4 gpus, runs one job at a time
 public class GPU {
-
     private final int id;
     private Job currentJob; // null = free
-
     public GPU(int id) {
         this.id = id;
     }

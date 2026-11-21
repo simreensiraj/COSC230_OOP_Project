@@ -9,7 +9,7 @@ public class AccessRequest implements Storable {
     private final String phone;
     private final String password;
     private RequestStatus status;
-    
+
     public AccessRequest(String universityId, String name, String email, String phone, String password) {
         this.universityId = universityId;
         this.name = name;

@@ -8,7 +8,6 @@ import java.time.format.DateTimeParseException;
 // all times are shown as dd/MM/yyyy HH:mm
 // times always come from the simulated clock, never LocalDateTime.now()
 public class TimeFormat {
-
     private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     // e.g. "16/11/2026 10:00", or "" if there's no time yet

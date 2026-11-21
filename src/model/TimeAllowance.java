@@ -3,7 +3,6 @@ package model;
 // a student's gpu minutes: available = allocated - used - reserved
 // fields are private so only the methods below can change them, and none of them lets a value go below 0
 public class TimeAllowance {
-
     private int allocated;
     private int used;
     private int reserved;

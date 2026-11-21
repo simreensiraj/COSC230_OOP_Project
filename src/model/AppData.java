@@ -5,7 +5,6 @@ import java.util.*;
 // everything the app keeps in memory. DataStore saves/loads it,
 // AccountService and the Scheduler work on it. the time is kept in SimulationClock
 public class AppData {
-
     private final HashMap<String, Student> students = new HashMap<>(); // key = university id
     private final ArrayList<AccessRequest> requests = new ArrayList<>();
     private final ArrayList<Job> jobs = new ArrayList<>();

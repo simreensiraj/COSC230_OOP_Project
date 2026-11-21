@@ -4,7 +4,6 @@ import java.time.*;
 
 // the one fixed admin account
 public class Administrator extends User {
-
     public static final String USERNAME = "admin";
     public static final String PASSWORD = "gpu2026";
 
@@ -23,8 +22,7 @@ public class Administrator extends User {
             throw new IllegalArgumentException("Minutes must be a positive whole number");
         }
         request.approve();
-        return new Student(request.getUniversityId(), request.getPassword(), request.getName(),
-                request.getEmail(), request.getPhone(), new TimeAllowance(initialMinutes));
+        return new Student(request.getUniversityId(), request.getPassword(), request.getName(), request.getEmail(), request.getPhone(), new TimeAllowance(initialMinutes));
     }
 
     // rejecting only changes the status

@@ -2,12 +2,10 @@ package model;
 
 // the 4 job sizes, 1 workload unit = 1 gpu minute
 public enum TaskSize {
-
     SMALL("Small", 5),
     MEDIUM("Medium", 15),
     LARGE("Large", 30),
     VERY_LARGE("Very large", 60);
-
     private final String label;
     private final int workloadUnits;
 

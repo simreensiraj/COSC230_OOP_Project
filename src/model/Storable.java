@@ -5,7 +5,6 @@ import java.util.*;
 // anything we save to a file. each object = one line
 // every class that implements this also has a static fromLine() to read the line back
 public interface Storable {
-
     String toLine();
 
     // values are separated by commas. a comma, \ or new line inside a value
@@ -38,8 +37,7 @@ public interface Storable {
         }
         values.add(current);
         if (values.size() != expectedValues) {
-            throw new IllegalArgumentException("expected " + expectedValues + " values but found "
-                    + values.size());
+            throw new IllegalArgumentException("expected " + expectedValues + " values but found " + values.size());
         }
         return values.toArray(new String[0]);
     }
