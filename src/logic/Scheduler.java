@@ -32,16 +32,13 @@ private TimeAllowance allowanceOf(String studentId) {
 public Job submit(String studentId, String title, String applicationName, String description, TaskSize size) {
 	if (!clock.isSet())
 		throw new IllegalStateException ("The simulation clock has not been set yet.");
+	//reserve first so a refused job leaves nothing behind
 	allowanceOf(studentId).reserve(size.getDuration());
 	String id = data.nextJobId();
 	Job job= new Job(id, studentId, title, applicationName, description, size, clock.getNow());
 	jobs.add(job);
 	dispatch();
 	return job;
-	//Why reserve first: if the student doesn’t have enough time, reserve throws an exception. 
-	//If you had already added the job to the list by then, you’d leave a job in the system that was never accepted.
-	//Reserving first means a rejected submission leaves nothing behind.
-	
 }
 private GPU findFreeGpu() {
 	for (GPU g:gpus) {

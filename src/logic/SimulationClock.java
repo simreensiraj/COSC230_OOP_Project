@@ -133,8 +133,7 @@ public int getElapsedMinutes() {
 }
 
 public boolean restore(int year, int month, int day, int hour, int minute, int elapsedMinutes) {
-	//Unlike setStart, it must work even if the clock is already set
-	//Called by the system when loading saved data, so it must be allowed to overwrite the current state (unlike setStart, which is the admin's once-only action).
+	//used by DataStore when loading, so unlike setStart it works even if the clock is set
 	if (month>=1 && month<=12 && hour>=0 && hour<=23 && minute>=0 && minute<=59 && day>=1 && day<= daysInMonth(month,year) && elapsedMinutes>=0) {
 		this.year=year;
 		this.month=month;
