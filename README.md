@@ -181,9 +181,9 @@ You need Java 17 or newer. There are no external libraries.
 | File | What it does |
 |---|---|
 | `src/ui/Main.java` | Starts the app with the data in `data/`. |
-| `test/tests/ModelStorageTest.java` | Tests the model classes and storage (29 checks). |
-| `test/tests/ScenarioTest.java` | Replays the guide's 10:20 example and tests the rules (45 checks). |
-| `test/tests/DemoDataGenerator.java` | Rebuilds the demo data in `data/`. Close the app first, it overwrites the files. |
+| `src/tests/ModelStorageTest.java` | Tests the model classes and storage (29 checks). |
+| `src/tests/ScenarioTest.java` | Replays the guide's 10:20 example and tests the rules (45 checks). |
+| `src/tests/DemoDataGenerator.java` | Rebuilds the demo data in `data/`. Close the app first, it overwrites the files. |
 
 `data/` already has the demo data: 5 approved students (`100011` to `100015`, password `Demo12345`), 2 pending and 1 rejected request, and 20 jobs (6 completed, 6 cancelled, 4 running, 4 queued). The administrator is `admin` / `gpu2026`.
 
@@ -221,7 +221,7 @@ Everything is in one repository on the `main` branch, and each member committed 
 
 | Member | Commits | Main work |
 |---|---|---|
-| Simreen | 48 | project setup, model classes, `AccountService`, `DataStore`, `Main`, tests, diagrams, clean-up, student window tabs |
+| Simreen | 50 | project setup, model classes, `AccountService`, `DataStore`, `Main`, tests, diagrams, clean-up, student window tabs |
 | Mariam | 16 | `SimulationClock`, `Scheduler`, moving it onto the shared `AppData` |
 | Alyazeya | 21 | login, registration, student window, job form, My Jobs, connecting them to the services |
 | Maryam | 9 | admin window and all tabs, clock setup, demo data |
@@ -246,7 +246,7 @@ src/
   logic/      AccountService, Scheduler, SimulationClock, ValidationException
   storage/    DataStore
   ui/         Main and the Swing windows
-test/tests/   ModelStorageTest, ScenarioTest, DemoDataGenerator
+  tests/      ModelStorageTest, ScenarioTest, DemoDataGenerator (run by hand, not part of the app)
 data/         demo data the app starts from (students, requests, jobs, grants, clock)
 docs/         class diagrams, screenshots, commit chart
 .project, .classpath, .settings/   Eclipse project files
