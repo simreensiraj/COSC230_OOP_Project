@@ -1,9 +1,7 @@
 package ui;
 
 import java.io.IOException;
-
 import javax.swing.JOptionPane;
-
 import logic.AccountService;
 import logic.Scheduler;
 import logic.SimulationClock;
