@@ -98,7 +98,7 @@ public class StudentFrame extends JFrame implements ActionListener {
 		descriptionArea.setLineWrap(true);
 		descriptionArea.setWrapStyleWord(true);
 
-		sizeBox = new JComboBox<TaskSize>(TaskSize.values());
+		sizeBox = new JComboBox<>(TaskSize.values());
 		durationLabel = new JLabel();
 		submitButton = new JButton("Submit Job");
 

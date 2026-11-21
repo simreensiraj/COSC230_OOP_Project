@@ -18,7 +18,7 @@ public class Main {
     public static AccountService accounts;
     public static Scheduler scheduler;
     public static SimulationClock clock = new SimulationClock();
-    private static DataStore store = new DataStore();
+    private static final DataStore store = new DataStore();
 
     public static void main(String[] args) {
         try {

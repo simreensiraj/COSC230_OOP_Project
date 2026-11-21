@@ -58,14 +58,8 @@ public boolean isSet() {
 }
 
 private static boolean isLeapYear (int year) {
-	if (year%4==0) {
-		if (year%100==0 && year%400==0) {
-			return true;
-		}
-		if (year%100==0) {return false;}
-		return true;}
-	return false;
-	}
+	return (year%4==0 && year%100!=0) || year%400==0;
+}
 
 private static int daysInMonth(int month, int year){
 	if (isLeapYear(year) && month==2) {

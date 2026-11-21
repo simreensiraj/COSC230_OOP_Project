@@ -33,10 +33,10 @@ public class DataStore {
 
     public void save(AppData data, SimulationClock clock) throws IOException {
         Files.createDirectories(Paths.get(folder));
-        writeFile("students.csv", new ArrayList<Storable>(data.getStudents().values()));
-        writeFile("requests.csv", new ArrayList<Storable>(data.getRequests()));
-        writeFile("jobs.csv", new ArrayList<Storable>(data.getJobs()));
-        writeFile("grants.csv", new ArrayList<Storable>(data.getGrants()));
+        writeFile("students.csv", new ArrayList<>(data.getStudents().values()));
+        writeFile("requests.csv", new ArrayList<>(data.getRequests()));
+        writeFile("jobs.csv", new ArrayList<>(data.getJobs()));
+        writeFile("grants.csv", new ArrayList<>(data.getGrants()));
 
         // year,month,day,hour,minute,elapsedMinutes. empty file if the clock isn't set yet
         ArrayList<String> clockLine = new ArrayList<>();

@@ -40,7 +40,7 @@ public class MyJobsPanel extends JPanel implements ActionListener {
 
         searchField = new JTextField(20);
 
-        statusBox = new JComboBox<String>(
+        statusBox = new JComboBox<>(
                 new String[] {
                         "All",
                         "QUEUED",
