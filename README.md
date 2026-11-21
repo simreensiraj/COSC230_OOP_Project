@@ -221,7 +221,7 @@ Everything is in one repository on the `main` branch, and each member committed 
 
 | Member | Commits | Main work |
 |---|---|---|
-| Simreen | 62 | project setup, model classes, `AccountService`, `DataStore`, `Main`, tests, diagrams, clean-up, student window tabs |
+| Simreen | 63 | project setup, model classes, `AccountService`, `DataStore`, `Main`, tests, diagrams, clean-up, student window tabs |
 | Mariam | 16 | `SimulationClock`, `Scheduler`, moving it onto the shared `AppData` |
 | Alyazeya | 21 | login, registration, student window, job form, My Jobs, connecting them to the services |
 | Maryam | 9 | admin window and all tabs, clock setup, demo data |
