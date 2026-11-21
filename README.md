@@ -2,7 +2,7 @@
 
 COSC 230 Object-Oriented Programming lab project, Fall 2026, Khalifa University.
 
-A Java Swing desktop app that manages four shared NVIDIA H100 GPUs for students. Students register, the administrator approves them and gives them GPU minutes, and students submit jobs that are scheduled on the GPUs. The GPUs and the clock are simulated.
+A Java Swing desktop app that shares four NVIDIA H100 GPUs between students. Students ask for an account, the administrator approves them and gives them GPU minutes, and students submit jobs that run on the GPUs one after another. Nothing really runs on a GPU: the GPUs and the clock are simulated, and time only moves when the administrator presses **+1 minute**.
 
 | Member | Student ID | GitHub | Part |
 |---|---|---|---|
@@ -11,31 +11,19 @@ A Java Swing desktop app that manages four shared NVIDIA H100 GPUs for students.
 | Alyazeya Alhammadi | 100060361 | [alhammadi-007](https://github.com/alhammadi-007) | C: login, registration, student screens |
 | Maryam Alhefeiti | 100060410 | [mksalhefeiti](https://github.com/mksalhefeiti) | D: admin screens, demo data |
 
-![Administrator dashboard at 10:20 in the guide's example](docs/screenshots/admin-dashboard.png)
-
-## Contents
-
-- [The task](#the-task)
-- [What the app does](#what-the-app-does)
-- [How to run it](#how-to-run-it)
-- [Design](#design)
-- [Testing and results](#testing-and-results)
-- [Version control](#version-control)
-- [Limitations](#limitations)
-- [Repository layout](#repository-layout)
+**Contents:** [The task](#the-task) · [How it works, step by step](#how-it-works-step-by-step) · [Class diagrams](#class-diagrams) · [How to run it](#how-to-run-it) · [Testing and results](#testing-and-results) · [Version control](#version-control) · [Limitations](#limitations) · [Repository layout](#repository-layout)
 
 ## The task
 
-The project asks for a Java OOP app with a JFrame interface that:
+Build a Java OOP app with a JFrame interface where:
 
-- lets students register with university ID, name, email, phone and a password
-- lets the fixed administrator (`admin` / `gpu2026`) approve or reject them; approval gives 100 GPU minutes by default
-- lets approved students submit jobs within their allowance, choosing one of four sizes
-- runs the jobs first come, first served on four GPUs, lowest free GPU ID first
-- moves time only when the administrator presses **+1 minute**
-- shows queue positions, predicted start and finish times, waits and utilization
-- saves everything to files and restores it on restart
-- uses encapsulation, inheritance, interfaces, polymorphism and collections, and keeps the GUI separate from the logic
+- students register with their university ID, name, email, phone and a password
+- one fixed administrator (`admin` / `gpu2026`) approves or rejects them; approval gives 100 GPU minutes by default
+- approved students submit jobs within their minutes, choosing one of four sizes
+- jobs run first come, first served on four GPUs, on the lowest free GPU ID
+- time moves only with **+1 minute**, and the app shows queue positions, predicted times, waits and utilization
+- everything is saved to files and comes back after a restart
+- the code uses encapsulation, inheritance, interfaces, polymorphism and collections, and keeps the GUI separate from the logic
 
 | Size | Workload units | Duration |
 |---|---|---|
@@ -44,105 +32,81 @@ The project asks for a Java OOP app with a JFrame interface that:
 | Large | 30 | 30 min |
 | Very large | 60 | 60 min |
 
-The allowance rule is **available = allocated − used − reserved**. A job's full duration is reserved when it is accepted. When it completes, or is cancelled while running, the reservation is released and only the minutes it actually ran are charged. A job cancelled while queued costs nothing.
+## How it works, step by step
 
-## What the app does
+The screenshots follow the example in the project guide: the clock was set to 16/11/2026 10:00, five students got 100 minutes each, and ten jobs (J101 to J110) were submitted between 10:00 and 10:19. The screenshots are at 10:20.
 
-**Students**
-- request an account, then log in with their university ID
-- see allocated, used, reserved and available minutes
-- submit a job (title, application, description, size) after confirming the duration
-- see their own jobs with status, GPU, start and finish times (predicted ones marked `≈`), queue position and wait
-- search and filter their jobs, and cancel a queued or running job with a reason
+### 1. Start the app
 
-**Administrator**
-- sets the clock once with date and time spinners, then moves it with **+1 minute**
-- approves requests with an initial number of minutes, or rejects them
-- sees a dashboard: job counts, busy GPUs, utilization, each GPU's job and finish time, waiting jobs, completed jobs and every balance
-- searches students by ID, grants extra minutes with a reason, cancels any queued or running job with a reason
-- lists every job with a search box and a status filter
+`Main` loads the saved files from `data/` with `DataStore`, creates one `AppData`, `SimulationClock`, `AccountService` and `Scheduler`, and opens the login window. Every window gets these same objects, so all screens show the same data. Students sign in with their university ID; the administrator signs in as `admin`.
 
-<details>
-<summary><b>Screenshots</b> (taken on the 10:20 data from the test scenario)</summary>
+<img src="docs/screenshots/login.png" width="420" alt="Login window">
 
-| | |
+### 2. A student asks for an account
+
+The registration form has only the five fields from the task. `AccountService.register()` checks them (nothing empty, a valid email and phone, the ID not already used) and saves an `AccessRequest` with status *Pending*. Until it is approved, signing in shows "Your registration request is still pending approval."
+
+<img src="docs/screenshots/register-validation.png" width="420" alt="Registration with an invalid email">
+
+### 3. The administrator sets the clock (first time only)
+
+On the first admin login there is no saved clock, so the clock setup opens with a date picker and a time picker. After that the clock only moves with **+1 minute** and never follows the computer's clock. Until it is set, jobs can't be submitted and +1 minute is disabled.
+
+<img src="docs/screenshots/clock-setup.png" width="700" alt="Clock setup dialog">
+
+### 4. The administrator approves the request
+
+The Requests tab lists the requests. **Approve** creates a `Student` with a `TimeAllowance` of 100 minutes (the administrator can change the number first). **Reject** only changes the status. A request can't be processed twice.
+
+<img src="docs/screenshots/admin-requests.png" alt="Requests tab">
+
+### 5. The student signs in and sees their minutes
+
+Every student has a `TimeAllowance` with three numbers. **available = allocated − used − reserved**. *Reserved* is time held for jobs that are queued or running; *used* is time that jobs actually ran. Here Sara has 100 allocated, 15 used, 20 reserved, so 65 available.
+
+<img src="docs/screenshots/student-home.png" width="420" alt="Student home window">
+
+### 6. The student submits a job
+
+The student types a title, application and description and picks a size. The duration comes from the size, and the student confirms it. `Scheduler.submit()` first reserves the minutes; if the job needs more than the available time it is refused and nothing is saved (an exact match is accepted).
+
+| Confirming a Large job | Not enough time: 60 asked, 55 available |
 |---|---|
-| ![Login](docs/screenshots/login.png) | ![Registration with a bad email](docs/screenshots/register-validation.png) |
-| Login | Registration with an invalid email |
-| ![Student home](docs/screenshots/student-home.png) | ![Submitting a job](docs/screenshots/submit-confirm.png) |
-| Student home: 100 / 15 / 20 / 65 | Confirming a Large job |
-| ![Allowance limit](docs/screenshots/allowance-limit.png) | ![Broken data file](docs/screenshots/file-error.png) |
-| 60 minutes asked, 55 available: refused | Broken `jobs.csv`: file and line named |
+| ![Submit confirmation](docs/screenshots/submit-confirm.png) | ![Job refused](docs/screenshots/allowance-limit.png) |
+
+### 7. The scheduler puts the job on a GPU or in the queue
+
+If a GPU is free the job starts at once on the lowest-numbered free GPU. If all four are busy it waits in one first-come, first-served queue. For waiting jobs the scheduler predicts when they start: it copies each GPU's "free at" time and hands out the queued jobs in order to the earliest copy (a tie goes to the lower GPU). Only the copies change, never the real GPUs. My Jobs shows each job's status and GPU; predicted times are marked `≈`.
 
 ![My Jobs](docs/screenshots/my-jobs.png)
-*Sara's jobs at 10:20: J109 is second in the queue and waits 10 minutes.*
+*Sara's jobs at 10:20: J109 is second in the queue and should start at 10:30, a 10-minute wait.*
 
-![Clock setup](docs/screenshots/clock-setup.png)
-*First admin login on empty data: the clock must be set first.*
+### 8. The administrator presses +1 minute
 
-![Requests](docs/screenshots/admin-requests.png)
-![Students](docs/screenshots/admin-students.png)
-![Granting time](docs/screenshots/grant-time.png)
-![All jobs](docs/screenshots/admin-all-jobs.png)
+`Scheduler.advanceMinute()` moves the clock one minute, completes every job that has run its full duration, settles it (the reservation is released and the minutes it ran are charged), frees its GPU and starts the next waiting jobs. Then the data is saved. The dashboard shows the job counts, each GPU, the waiting and completed jobs, every student's minutes and the utilization: minutes run by all jobs ÷ (4 × minutes since the clock was set), N/A at time zero.
 
-</details>
+![Administrator dashboard](docs/screenshots/admin-dashboard.png)
+*At 10:20 all four GPUs are busy, J108 and J109 wait 10 minutes each and utilization is 96.3%, the same as the guide.*
 
-## How to run it
+### 9. Cancelling a job
 
-You need Java 17 or newer. There are no external libraries.
+A student can cancel their own queued or running job; the administrator can cancel any. Both must give a reason, and the job keeps who cancelled it, when and why. A queued job costs nothing; a running job is charged only the minutes it ran and its GPU goes to the next job. On the Students tab the administrator finds a student by ID and sees their minutes and all their jobs.
 
-**Open the project**
-- Eclipse: File → Import → General → Existing Projects into Workspace → choose this folder.
-- VS Code: install the Extension Pack for Java, then File → Open Folder.
+![Students tab](docs/screenshots/admin-students.png)
 
-**Run**
+### 10. Granting extra time
 
-| File | What it does |
-|---|---|
-| `src/ui/Main.java` | Starts the app with the data in `data/`. On the first run log in as `admin` / `gpu2026` and set the clock. |
-| `src/ui/DemoMain.java` | Starts the app with the demo data in `demo-data/`. |
-| `src/ui/DemoDataGenerator.java` | Rebuilds `demo-data/`. Close the app first, it overwrites the demo files. |
-| `test/tests/ModelStorageTest.java` | Tests the model classes and storage (29 checks). |
-| `test/tests/ScenarioTest.java` | Replays the guide's 10:20 example and tests the rules (45 checks). |
+From the Students tab the administrator can give a student more minutes. A reason is required, and the grant is saved as a `TimeGrant` (student, minutes, reason, who, when). The All Jobs tab lists every job with a search box and a status filter.
 
-**Demo logins** (in `DemoMain`): `admin` / `gpu2026`, or students `100011` to `100015` with password `Demo12345`. The demo has 5 approved students, 2 pending and 1 rejected request, and 20 jobs: 6 completed, 6 cancelled, 4 running and 4 queued.
+<img src="docs/screenshots/grant-time.png" width="520" alt="Grant extra time dialog">
 
-To start again from nothing, close the app and delete the `data/` folder.
+![All Jobs tab](docs/screenshots/admin-all-jobs.png)
 
-## Design
+### 11. Closing and opening again
 
-The code is split into four packages. Only `ui` uses Swing.
+When the app closes, `DataStore` writes `students.csv`, `requests.csv`, `jobs.csv`, `grants.csv` and `clock.csv`, one object per line. On the next start everything comes back: the clock continues from the same minute, running jobs go back on their GPUs with the time they had left, and the queue and balances are the same. A missing file just means nothing was saved yet. A broken file shows which file and line is wrong and is not overwritten.
 
-| Package | Classes | Job |
-|---|---|---|
-| `model` | `User`, `Student`, `Administrator`, `AccessRequest`, `Job`, `GPU`, `TimeAllowance`, `TimeGrant`, `AppData`, `Storable`, `TimeFormat`, `TaskSize`, `JobStatus`, `RequestStatus` | The data and the rules that protect it |
-| `logic` | `AccountService`, `Scheduler`, `SimulationClock`, `ValidationException` | Accounts, scheduling, the clock |
-| `storage` | `DataStore` | Saves and loads the CSV files |
-| `ui` | `Main`, `DemoMain`, `DemoDataGenerator`, `LoginFrame`, `StudentRegistrationFrame`, `StudentFrame`, `SubmitJobFrame`, `MyJobsFrame`, `MyJobsPanel`, `AdminFrame`, `DashboardPanel`, `RequestsPanel`, `StudentsPanel`, `AllJobsPanel`, `ClockSetupPanel` | The windows |
-
-![How the packages connect](docs/uml/overview.png)
-
-`Main` creates one `AppData`, `SimulationClock`, `AccountService` and `Scheduler` and passes them to every window, so all screens work on the same data.
-
-**How the classes connect**
-- **Submit a job:** `SubmitJobFrame` → `Scheduler.submit()` reserves the minutes on the student's `TimeAllowance` (throws if there isn't enough), creates the `Job`, adds it to `AppData` and dispatches queued jobs onto free GPUs.
-- **+1 minute:** `AdminFrame` → `Scheduler.advanceMinute()` moves the `SimulationClock`, completes finished jobs, settles them (release + charge), frees their GPUs and starts waiting jobs. Then `Main.save()` writes the files.
-- **Cancel:** `MyJobsPanel` (owner) or `StudentsPanel` (admin) → `Scheduler.cancel()`. A running job is charged the minutes it ran and frees its GPU; a queued job is released for free.
-- **Start and exit:** `Main` → `DataStore.load()` restores everything and puts running jobs back on their GPUs; a shutdown hook calls `DataStore.save()`.
-
-**Predictions** copy each GPU's free-at time and give the queued jobs, in FCFS order, to the earliest copy (ties go to the lower GPU ID). The real GPUs are never changed. **Utilization** is the minutes run by all jobs ÷ (4 × minutes since the clock was set), shown as N/A at time zero.
-
-**The five OOP mechanisms**
-
-| Mechanism | Where |
-|---|---|
-| Encapsulation | `TimeAllowance` keeps allocated, used and reserved private; only `reserve()`, `release()`, `charge()` and `grant()` change them and none can go negative. `User` hides the password behind `checkPassword()`. |
-| Inheritance | `Student` and `Administrator` extend the abstract `User`. The windows extend `JFrame` / `JPanel`. |
-| Interfaces | `Student`, `AccessRequest`, `Job` and `TimeGrant` implement `Storable` (`toLine()`). |
-| Polymorphism | `AccountService.login()` loops over a list of `User` and calls `checkPassword()`; `DataStore` calls `toLine()` on any `Storable`. |
-| Collections | `HashMap` of students, `ArrayList`s of requests, jobs and grants, `GPU[4]`, `List<Job>` queue, `Map<Job, LocalDateTime>` predictions. |
-
-**Storage.** `DataStore` writes `students.csv`, `requests.csv`, `jobs.csv`, `grants.csv` and `clock.csv`, one object per line. A missing file means nothing was saved yet. A broken line stops loading with a message naming the file and line, and the file is not overwritten.
+<img src="docs/screenshots/file-error.png" width="520" alt="File error message">
 
 ```
 students.csv  100052210,gpu12345,Sara Ahmed,sara.ahmed@ku.ac.ae,0501234502,100,15,20
@@ -150,25 +114,80 @@ jobs.csv      J106,100052210,CNN training,PyTorch,Train the image classifier,MED
 clock.csv     2026,11,16,10,20,20
 ```
 
-<details>
-<summary><b>Class diagrams</b> (every attribute and method)</summary>
+## Class diagrams
 
-**Model: users, requests, allowances, grants**
-![Model 1](docs/uml/model-users.png)
+The code is in four packages. Only `ui` uses Swing; `logic` and `model` never import it. The windows read their fields and call methods in `logic`, which apply the rules.
 
-**Model: jobs, GPUs, AppData**
-![Model 2](docs/uml/model-jobs.png)
+| Package | Classes |
+|---|---|
+| `model` | `User`, `Student`, `Administrator`, `AccessRequest`, `Job`, `GPU`, `TimeAllowance`, `TimeGrant`, `AppData`, `Storable`, `TimeFormat`, `TaskSize`, `JobStatus`, `RequestStatus` |
+| `logic` | `AccountService`, `Scheduler`, `SimulationClock`, `ValidationException` |
+| `storage` | `DataStore` |
+| `ui` | `Main`, `LoginFrame`, `StudentRegistrationFrame`, `StudentFrame`, `SubmitJobFrame`, `MyJobsFrame`, `MyJobsPanel`, `AdminFrame`, `DashboardPanel`, `RequestsPanel`, `StudentsPanel`, `AllJobsPanel`, `ClockSetupPanel` |
 
-**Logic and storage**
-![Logic and storage](docs/uml/logic-storage.png)
+### How the packages connect
 
-**UI: Main, login, registration, student windows**
-![UI 1](docs/uml/ui-student.png)
+The windows call `AccountService` (register, login, approve, reject, grant) and `Scheduler` (submit, cancel, +1 minute, predictions). Both work on the one `AppData`. `DataStore` saves and loads `AppData` and the clock.
 
-**UI: administrator window and tabs**
-![UI 2](docs/uml/ui-admin.png)
+<img src="docs/uml/overview.png" width="640" alt="Package overview">
 
-</details>
+### Model: users, requests, allowances and grants
+
+`Student` and `Administrator` extend the abstract `User`. A `Student` has one `TimeAllowance`, whose numbers can only change through `reserve()`, `release()`, `charge()` and `grant()`, so they never go negative. `Student`, `AccessRequest` and `TimeGrant` implement `Storable`, so each can write itself as one line of a file.
+
+![Model classes 1](docs/uml/model-users.png)
+
+### Model: jobs, GPUs and AppData
+
+A `Job` checks its own moves: only Queued → Running or Cancelled, and Running → Completed or Cancelled. Anything else throws, so a job can't restart or be charged twice. `AppData` holds the students (a `HashMap` by ID), the requests, jobs and grants (`ArrayList`s) and the four `GPU`s.
+
+![Model classes 2](docs/uml/model-jobs.png)
+
+### Logic and storage
+
+`Scheduler` does submit, dispatch, +1 minute, cancel, predictions and utilization using the `SimulationClock`. `AccountService` handles accounts. `DataStore` writes and reads the CSV files and turns any broken line into a `ValidationException` with the file and line.
+
+![Logic and storage classes](docs/uml/logic-storage.png)
+
+### UI: start, login and student windows
+
+`Main` opens `LoginFrame`, which opens the registration form, the student window or the admin window. The student window opens the job form and My Jobs.
+
+<img src="docs/uml/ui-student.png" width="720" alt="Student UI classes">
+
+### UI: administrator window
+
+`AdminFrame` has the clock, **+1 minute** and four tabs: Dashboard, Requests, Students and All Jobs. `ClockSetupPanel` opens on the first login.
+
+![Admin UI classes](docs/uml/ui-admin.png)
+
+### The five OOP mechanisms
+
+| Mechanism | Where |
+|---|---|
+| Encapsulation | `TimeAllowance` keeps allocated, used and reserved private; only its methods change them. `User` keeps the password private and only offers `checkPassword()`. |
+| Inheritance | `Student` and `Administrator` extend the abstract `User`. The windows extend `JFrame` or `JPanel`; `ValidationException` extends `Exception`. |
+| Interfaces | `Student`, `AccessRequest`, `Job` and `TimeGrant` implement `Storable` (`toLine()`). |
+| Polymorphism | `login()` returns a `User`, and `LoginFrame` calls `user.isAdmin()`, which runs the `Student` or `Administrator` version. `DataStore` calls `toLine()` on a list of `Storable`, whatever class each item is. |
+| Collections | `HashMap` of students, `ArrayList`s of requests, jobs and grants, `GPU[4]`, the queue as a `List<Job>`, predictions in a `Map<Job, LocalDateTime>`. |
+
+## How to run it
+
+You need Java 17 or newer. There are no external libraries.
+
+- **Eclipse:** File → Import → General → Existing Projects into Workspace → choose this folder.
+- **VS Code:** install the Extension Pack for Java, then File → Open Folder.
+
+| File | What it does |
+|---|---|
+| `src/ui/Main.java` | Starts the app with the data in `data/`. |
+| `test/tests/ModelStorageTest.java` | Tests the model classes and storage (29 checks). |
+| `test/tests/ScenarioTest.java` | Replays the guide's 10:20 example and tests the rules (45 checks). |
+| `test/tests/DemoDataGenerator.java` | Rebuilds the demo data in `data/`. Close the app first, it overwrites the files. |
+
+`data/` already has the demo data: 5 approved students (`100011` to `100015`, password `Demo12345`), 2 pending and 1 rejected request, and 20 jobs (6 completed, 6 cancelled, 4 running, 4 queued). The administrator is `admin` / `gpu2026`.
+
+To start from nothing (for example to see the clock setup), close the app and delete the `data/` folder. `git checkout -- data` brings the demo data back.
 
 ## Testing and results
 
@@ -177,9 +196,9 @@ Both tests are plain `main` methods that print `PASS` or `FAIL` for each check a
 | Test | Checks | Result |
 |---|---|---|
 | `ModelStorageTest`: allowance rules, illegal job moves, accounts, save and reload, missing and broken files | 29 | all pass |
-| `ScenarioTest`: the guide's 10:20 example through the real `Scheduler` and `AccountService`, then predictions, cancellations, limits and every login and registration message | 45 | all pass |
+| `ScenarioTest`: the guide's example through the real `Scheduler` and `AccountService`, then predictions, cancellations, limits and every login and registration message | 45 | all pass |
 
-The scenario sets the clock to 16/11/2026 10:00, approves five students with 100 minutes each, and submits J101 to J110 at the times in the guide while pressing +1 minute (J110 is cancelled by its owner while queued). At 10:20:
+What the scenario test checks at 10:20, against the values in the guide:
 
 | Check | Guide | Our app |
 |---|---|---|
@@ -188,7 +207,7 @@ The scenario sets the clock to 16/11/2026 10:00, approves five students with 100
 | J108, J109 waits | 10, 10 min | 10, 10 min |
 | Utilization | 96.3% | 96.3% |
 | Ali / Sara / Hamad (alloc/used/res/avail) | 100/5/30/65, 100/15/20/65, 100/15/30/55 | same |
-| J110 charge | 0 | 0 |
+| J110 (cancelled while queued) charge | 0 | 0 |
 | Waits after J111 (Large) is submitted | 10 / 10 / 15 | 10 / 10 / 15 |
 | Waits after +1 minute | 9 / 9 / 14 | 9 / 9 / 14 |
 
@@ -196,26 +215,26 @@ After saving and reloading, the clock, running jobs, remaining times, waits and 
 
 ## Version control
 
-Everything is in one repository on the `main` branch. Each member committed from their own account as their part was built. The model went in first (13–15 Nov) so the scheduler and screens could build on it; the scheduler and the screens were connected on 19 Nov; the admin tabs, demo data and documentation followed on 20–21 Nov.
+Everything is in one repository on the `main` branch, and each member committed from their own account. The model went in first (13 to 15 Nov) so the scheduler and screens could build on it. The scheduler and the screens were connected on 19 Nov, and the admin tabs, demo data, tests and documentation followed on 20 and 21 Nov.
 
 ![Commits per day](docs/commits-per-day.png)
 
 | Member | Commits | Main work |
 |---|---|---|
-| Simreen | 32 | project setup, every model class one commit at a time, `AccountService`, `DataStore`, tests, `Main`, diagrams |
+| Simreen | 44 | project setup, every model class one commit at a time, `AccountService`, `DataStore`, `Main`, tests, diagrams, clean-up |
 | Mariam | 16 | `SimulationClock`, `Scheduler` step by step, moving it onto the shared `AppData` |
 | Alyazeya | 21 | login, registration, student home, job form, My Jobs, connecting them to the services |
-| Maryam | 9 | admin window and all tabs, clock setup, demo data and demo mode |
+| Maryam | 9 | admin window and all tabs, clock setup, demo data |
 
 *Counts are up to 21 Nov 2026 and leave out merge commits. Some members committed whole screens at once, so the counts don't show how big each commit was.*
 
 ## Limitations
 
-- Admin actions save straight away. Registrations, approvals, rejections and student submissions and cancellations are saved when the app closes, so a force-quit loses them.
+- Setting the clock, +1 minute, grants and admin cancellations save straight away. Registrations, approvals, rejections and student submissions and cancellations are saved when the app closes, so a force-quit loses them.
 - Passwords are stored as plain text in the CSV files.
 - One fixed admin account and one user at a time on one computer, as the task describes.
 - Student windows refresh when they come to the front or when *Refresh* is pressed, not on a timer.
-- The clock's year spinner shows `2,026`, and some table columns cut off long values unless the window is widened.
+- Some table columns cut off long values unless the window is made wider.
 - Time moves in whole minutes and only the four task sizes exist. No real GPU work happens.
 
 ## Repository layout
@@ -226,9 +245,9 @@ src/
               TimeGrant, AppData, Storable, TimeFormat, TaskSize, JobStatus, RequestStatus
   logic/      AccountService, Scheduler, SimulationClock, ValidationException
   storage/    DataStore
-  ui/         Main, DemoMain, DemoDataGenerator and the Swing windows
-test/tests/   ModelStorageTest, ScenarioTest
-demo-data/    demo students, requests, jobs and clock
+  ui/         Main and the Swing windows
+test/tests/   ModelStorageTest, ScenarioTest, DemoDataGenerator
+data/         demo data the app starts from (students, requests, jobs, grants, clock)
 docs/         class diagrams, screenshots, commit chart
 .project, .classpath, .settings/   Eclipse project files
 LICENSE
