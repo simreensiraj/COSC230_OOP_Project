@@ -126,10 +126,7 @@ public class MyJobsPanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == searchButton || e.getSource() == statusBox) {
-            refreshJobs();
-        } else if (e.getSource() == refreshButton) {
-            // Refresh without clearing search or status
+        if (e.getSource() == searchButton || e.getSource() == statusBox || e.getSource() == refreshButton) {
             refreshJobs();
         } else if (e.getSource() == cancelButton) {
             int selectedRow = jobsTable.getSelectedRow();
