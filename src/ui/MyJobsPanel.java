@@ -349,12 +349,7 @@ public class MyJobsPanel extends JPanel implements ActionListener {
                 // Update table after cancellation
                 refreshJobs();
 
-            } catch (IllegalArgumentException ex) {
-
-                JOptionPane.showMessageDialog(
-                        this, ex.getMessage());
-
-            } catch (IllegalStateException ex) {
+            } catch (IllegalArgumentException | IllegalStateException ex) {
 
                 JOptionPane.showMessageDialog(
                         this, ex.getMessage());

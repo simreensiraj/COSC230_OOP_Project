@@ -155,7 +155,6 @@ public class StudentFrame extends JFrame implements ActionListener {
 		setSize(1000, 520);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true);
 	}
 
 	// Update balances, simulated time and the jobs table
@@ -203,7 +202,7 @@ public class StudentFrame extends JFrame implements ActionListener {
 		} else if (e.getSource() == logoutButton) {
 
 			// Return to login with shared objects
-			new LoginFrame(data, accountService, scheduler);
+			new LoginFrame(data, accountService, scheduler).setVisible(true);
 			dispose();
 		}
 	}

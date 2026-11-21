@@ -64,7 +64,6 @@ public class LoginFrame extends JFrame implements ActionListener {
         setSize(550, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
     }
 
     @Override
@@ -86,7 +85,7 @@ public class LoginFrame extends JFrame implements ActionListener {
 
                 } else {
 
-                    new StudentFrame(data, accountService, scheduler, (Student) user);
+                    new StudentFrame(data, accountService, scheduler, (Student) user).setVisible(true);
                 }
 
                 dispose();
@@ -98,7 +97,7 @@ public class LoginFrame extends JFrame implements ActionListener {
 
         } else if (e.getSource() == registerButton) {
 
-            new StudentRegistrationFrame(data, accountService, scheduler);
+            new StudentRegistrationFrame(data, accountService, scheduler).setVisible(true);
             dispose();
         }
     }

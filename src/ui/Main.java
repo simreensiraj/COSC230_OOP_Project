@@ -30,7 +30,7 @@ public class Main {
         accounts = new AccountService(data);
         scheduler = new Scheduler(clock, data);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> save())); // save on exit
-        new LoginFrame(data, accounts, scheduler);
+        new LoginFrame(data, accounts, scheduler).setVisible(true);
     }
 
     // call this after changes too, so nothing is lost if the app crashes

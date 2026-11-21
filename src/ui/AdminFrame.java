@@ -107,7 +107,7 @@ public class AdminFrame extends JFrame {
             Main.save();
             dispose();
 
-            new LoginFrame(data, accountService, Main.scheduler);
+            new LoginFrame(data, accountService, Main.scheduler).setVisible(true);
         });
 
         // Refresh tab when selected
