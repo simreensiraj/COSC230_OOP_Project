@@ -4,6 +4,9 @@ package ui;
 import java.awt.GridLayout;
 import java.awt.Window;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 import javax.swing.*;
 
@@ -11,46 +14,26 @@ public class ClockSetupPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private JSpinner yearSpinner;
-    private JSpinner monthSpinner;
-    private JSpinner daySpinner;
-    private JSpinner hourSpinner;
-    private JSpinner minuteSpinner;
+    private JSpinner dateSpinner;
+    private JSpinner timeSpinner;
 
     public ClockSetupPanel(Runnable onClockSet) {
 
-        setLayout(new GridLayout(6, 2, 10, 10));
+        setLayout(new GridLayout(3, 2, 10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        yearSpinner = new JSpinner(
-                new SpinnerNumberModel(2026, 1, 9999, 1));
+        // Date picker and time picker
+        dateSpinner = new JSpinner(new SpinnerDateModel());
+        dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "dd/MM/yyyy"));
 
-        monthSpinner = new JSpinner(
-                new SpinnerNumberModel(11, 1, 12, 1));
+        timeSpinner = new JSpinner(new SpinnerDateModel());
+        timeSpinner.setEditor(new JSpinner.DateEditor(timeSpinner, "HH:mm"));
 
-        daySpinner = new JSpinner(
-                new SpinnerNumberModel(19, 1, 31, 1));
+        add(new JLabel("Date:"));
+        add(dateSpinner);
 
-        hourSpinner = new JSpinner(
-                new SpinnerNumberModel(10, 0, 23, 1));
-
-        minuteSpinner = new JSpinner(
-                new SpinnerNumberModel(20, 0, 59, 1));
-
-        add(new JLabel("Year:"));
-        add(yearSpinner);
-
-        add(new JLabel("Month:"));
-        add(monthSpinner);
-
-        add(new JLabel("Day:"));
-        add(daySpinner);
-
-        add(new JLabel("Hour:"));
-        add(hourSpinner);
-
-        add(new JLabel("Minute:"));
-        add(minuteSpinner);
+        add(new JLabel("Time (24-hour):"));
+        add(timeSpinner);
 
         JButton setButton = new JButton("Set Clock");
         add(new JLabel());
@@ -59,20 +42,15 @@ public class ClockSetupPanel extends JPanel {
         setButton.addActionListener(e -> {
 
             try {
-                yearSpinner.commitEdit();
-                monthSpinner.commitEdit();
-                daySpinner.commitEdit();
-                hourSpinner.commitEdit();
-                minuteSpinner.commitEdit();
+                dateSpinner.commitEdit();
+                timeSpinner.commitEdit();
 
-                int year = (Integer) yearSpinner.getValue();
-                int month = (Integer) monthSpinner.getValue();
-                int day = (Integer) daySpinner.getValue();
-                int hour = (Integer) hourSpinner.getValue();
-                int minute = (Integer) minuteSpinner.getValue();
+                // Date from one picker, time from the other
+                LocalDateTime date = toLocalDateTime((Date) dateSpinner.getValue());
+                LocalDateTime time = toLocalDateTime((Date) timeSpinner.getValue());
 
-                boolean success = Main.clock.setStart(
-                        year, month, day, hour, minute);
+                boolean success = Main.clock.setStart(date.getYear(), date.getMonthValue(),
+                        date.getDayOfMonth(), time.getHour(), time.getMinute());
 
                 if (!success) {
                     JOptionPane.showMessageDialog(this,
@@ -93,12 +71,16 @@ public class ClockSetupPanel extends JPanel {
                     window.dispose();
                 }
 
-            } catch (ParseException | IllegalArgumentException ex) {
+            } catch (ParseException ex) {
                 JOptionPane.showMessageDialog(this,
-                        "Please enter valid date and time values.",
+                        "Please enter a valid date and time.",
                         "Input Error",
                         JOptionPane.ERROR_MESSAGE);
             }
         });
+    }
+
+    private LocalDateTime toLocalDateTime(Date value) {
+        return LocalDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault());
     }
 }
