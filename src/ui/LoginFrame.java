@@ -7,7 +7,6 @@ import java.awt.event.*;
 import logic.AccountService;
 import logic.ValidationException;
 import logic.Scheduler;
-import logic.SimulationClock;
 
 import model.Administrator;
 import model.AppData;
@@ -103,20 +102,5 @@ public class LoginFrame extends JFrame implements ActionListener {
             new StudentRegistrationFrame(data, accountService, scheduler);
             dispose();
         }
-    }
-
-    // Temporary main method for testing
-    public static void main(String[] args) {
-
-        AppData data = new AppData();
-        AccountService accountService = new AccountService(data);
-
-        // Create one shared simulation clock
-        SimulationClock clock = new SimulationClock();
-
-        // Create one shared scheduler
-        Scheduler scheduler = new Scheduler(clock, data);
-
-        new LoginFrame(data, accountService, scheduler);
     }
 }

@@ -101,14 +101,4 @@ public class StudentRegistrationFrame extends JFrame implements ActionListener {
 			dispose();
 		}
 	}
-
-	// Temporary main method for testing
-	public static void main(String[] args) {
-
-		AppData data = new AppData();
-		AccountService accountService = new AccountService(data);
-		Scheduler scheduler = new Scheduler(new logic.SimulationClock(), data);
-
-		new StudentRegistrationFrame(data, accountService, scheduler);
-	}
 }
