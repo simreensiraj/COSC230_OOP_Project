@@ -1,4 +1,5 @@
 package logic;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import model.*;
@@ -6,41 +7,40 @@ import model.*;
 public class Scheduler {
     private final SimulationClock clock;
     private final Map<String, Student> students;
-    private final GPU [] gpus;
+    private final GPU[] gpus;
     private final List<Job> jobs;
-
-
     private final AppData data;
 
     public Scheduler(SimulationClock clock, AppData data) {
         this.clock = clock;
         this.data = data;
         this.students = data.getStudents();
-        this.jobs = data.getJobs();           // same list DataStore saves and loads
-        this.gpus = data.getGpus();           // same 4 GPUs (AppData creates them)
+        this.jobs = data.getJobs(); // same list DataStore saves and loads
+        this.gpus = data.getGpus(); // same 4 GPUs (AppData creates them)
     }
 
     private TimeAllowance allowanceOf(String studentId) {
         if (!students.containsKey(studentId)) {
             throw new IllegalArgumentException("Unknown student");
         }
-
         return students.get(studentId).getAllowance();
     }
 
     public Job submit(String studentId, String title, String applicationName, String description, TaskSize size) {
-        if (!clock.isSet())
-            throw new IllegalStateException ("The simulation clock has not been set yet.");
-        //reserve first so a refused job leaves nothing behind
+        if (!clock.isSet()) {
+            throw new IllegalStateException("The simulation clock has not been set yet.");
+        }
+        // reserve first so a refused job leaves nothing behind
         allowanceOf(studentId).reserve(size.getDuration());
         String id = data.nextJobId();
-        Job job= new Job(id, studentId, title, applicationName, description, size, clock.getNow());
+        Job job = new Job(id, studentId, title, applicationName, description, size, clock.getNow());
         jobs.add(job);
         dispatch();
         return job;
     }
+
     private GPU findFreeGpu() {
-        for (GPU g:gpus) {
+        for (GPU g : gpus) {
             if (g.isFree()) {
                 return g;
             }
@@ -48,54 +48,55 @@ public class Scheduler {
         return null;
     }
 
-    public List<Job> getQueue(){
+    public List<Job> getQueue() {
         List<Job> queue = new ArrayList<>();
-        for (Job j:jobs) {
-                if (j.getStatus() == JobStatus.QUEUED) {
-                    queue.add(j);
-                }
+        for (Job j : jobs) {
+            if (j.getStatus() == JobStatus.QUEUED) {
+                queue.add(j);
             }
-            return queue;
         }
+        return queue;
+    }
+
     private void dispatch() {
         while (true) {
-                List<Job> queue = getQueue();
-                GPU gpu = findFreeGpu();
-                if (queue.isEmpty() || gpu==null) {
-                    break;
-                }
-                Job job = queue.get(0);
-                job.start(gpu.getId(), clock.getNow());
-                gpu.assign(job);
+            List<Job> queue = getQueue();
+            GPU gpu = findFreeGpu();
+            if (queue.isEmpty() || gpu == null) {
+                break;
             }
+            Job job = queue.get(0);
+            job.start(gpu.getId(), clock.getNow());
+            gpu.assign(job);
+        }
     }
 
     public int getQueuePosition(Job job) {
         List<Job> queue = getQueue();
         for (int i = 0; i < queue.size(); i++) {
-            if (queue.get(i)==job) {
-                return i+1;
+            if (queue.get(i) == job) {
+                return i + 1;
             }
         }
         return 0;
     }
+
     private void settle(Job job, int minutesRun) {
         allowanceOf(job.getStudentId()).release(job.getEstimatedDuration());
         allowanceOf(job.getStudentId()).charge(minutesRun);
     }
 
     public boolean advanceMinute() {
-        if (!clock.isSet()){
+        if (!clock.isSet()) {
             return false;
         }
-
         clock.advance();
         LocalDateTime now = clock.getNow();
         for (GPU gpu : gpus) {
             Job job = gpu.getCurrentJob();
-            if (job != null && job.getRemainingMinutes(now)<=0) {
+            if (job != null && job.getRemainingMinutes(now) <= 0) {
                 job.complete(now);
-                settle(job,job.getMinutesRun(now));
+                settle(job, job.getMinutesRun(now));
                 gpu.free();
             }
         }
@@ -104,15 +105,12 @@ public class Scheduler {
     }
 
     public void cancel(Job job, String by, String reason) {
-        if (!(by.equals("admin")||by.equals(job.getStudentId()))) {
+        if (!(by.equals("admin") || by.equals(job.getStudentId()))) {
             throw new IllegalArgumentException("Not allowed to cancel this job.");
         }
-
         boolean wasRunning = job.getStatus() == JobStatus.RUNNING;
         int gpuId = job.getAssignedGpuId();
-
         job.cancel(by, reason, clock.getNow());
-
         if (wasRunning) {
             gpus[gpuId - 1].free();
             settle(job, job.getMinutesRun(clock.getNow()));
@@ -122,7 +120,7 @@ public class Scheduler {
         dispatch();
     }
 
-    private Map<Job, LocalDateTime> predictStarts(){
+    private Map<Job, LocalDateTime> predictStarts() {
         Map<Job, LocalDateTime> starts = new HashMap<>();
         if (!clock.isSet()) {
             return starts;
@@ -145,7 +143,6 @@ public class Scheduler {
     }
 
     public LocalDateTime getPredictedStart(Job job) {
-
         return predictStarts().get(job);
     }
 
@@ -218,5 +215,4 @@ public class Scheduler {
     public SimulationClock getClock() {
         return clock;
     }
-
 }

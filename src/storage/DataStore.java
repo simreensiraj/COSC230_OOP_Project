@@ -20,7 +20,6 @@ import model.TimeGrant;
 // gpu assignments are saved in jobs.csv (the gpu column of running jobs)
 // a missing file just means nothing was saved yet
 public class DataStore {
-
     private final String folder;
 
     public DataStore() {
@@ -37,14 +36,10 @@ public class DataStore {
         writeFile("requests.csv", new ArrayList<>(data.getRequests()));
         writeFile("jobs.csv", new ArrayList<>(data.getJobs()));
         writeFile("grants.csv", new ArrayList<>(data.getGrants()));
-
         // year,month,day,hour,minute,elapsedMinutes. empty file if the clock isn't set yet
         ArrayList<String> clockLine = new ArrayList<>();
         if (clock.isSet()) {
-            clockLine.add(Storable.join(String.valueOf(clock.getYear()),
-                    String.valueOf(clock.getMonth()), String.valueOf(clock.getDay()),
-                    String.valueOf(clock.getHour()), String.valueOf(clock.getMinute()),
-                    String.valueOf(clock.getElapsedMinutes())));
+            clockLine.add(Storable.join(String.valueOf(clock.getYear()), String.valueOf(clock.getMonth()), String.valueOf(clock.getDay()), String.valueOf(clock.getHour()), String.valueOf(clock.getMinute()), String.valueOf(clock.getElapsedMinutes())));
         }
         Files.write(Paths.get(folder, "clock.csv"), clockLine);
     }
@@ -71,15 +66,12 @@ public class DataStore {
                 lineNumber++;
                 if (!line.trim().isEmpty()) {
                     String[] v = Storable.split(line, 6);
-                    boolean ok = clock.restore(Integer.parseInt(v[0]), Integer.parseInt(v[1]),
-                            Integer.parseInt(v[2]), Integer.parseInt(v[3]),
-                            Integer.parseInt(v[4]), Integer.parseInt(v[5]));
+                    boolean ok = clock.restore(Integer.parseInt(v[0]), Integer.parseInt(v[1]), Integer.parseInt(v[2]), Integer.parseInt(v[3]), Integer.parseInt(v[4]), Integer.parseInt(v[5]));
                     if (!ok) {
                         throw new IllegalArgumentException("not a valid date/time");
                     }
                 }
             }
-
             fileName = "students.csv";
             lineNumber = 0;
             for (String line : readFile(fileName)) {
@@ -89,7 +81,6 @@ public class DataStore {
                     data.getStudents().put(student.getUniversityId(), student);
                 }
             }
-
             fileName = "requests.csv";
             lineNumber = 0;
             for (String line : readFile(fileName)) {
@@ -98,7 +89,6 @@ public class DataStore {
                     data.getRequests().add(AccessRequest.fromLine(line));
                 }
             }
-
             fileName = "grants.csv";
             lineNumber = 0;
             for (String line : readFile(fileName)) {
@@ -107,7 +97,6 @@ public class DataStore {
                     data.getGrants().add(TimeGrant.fromLine(line));
                 }
             }
-
             fileName = "jobs.csv";
             lineNumber = 0;
             for (String line : readFile(fileName)) {
@@ -125,8 +114,7 @@ public class DataStore {
             }
         } catch (Exception e) {
             // e.g. Could not read data/jobs.csv (line 7: bad date "16-11-26")
-            throw new ValidationException("Could not read " + folder + "/" + fileName + " (line "
-                    + lineNumber + ": " + e.getMessage() + ").\nThe file was not loaded. Fix or remove it, then restart.");
+            throw new ValidationException("Could not read " + folder + "/" + fileName + " (line " + lineNumber + ": " + e.getMessage() + ").\nThe file was not loaded. Fix or remove it, then restart.");
         }
         return data;
     }

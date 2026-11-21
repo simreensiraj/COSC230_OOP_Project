@@ -1,4 +1,5 @@
 package logic;
+
 import java.time.*;
 import java.util.*;
 import model.*;
@@ -52,7 +53,6 @@ public class AccountService {
         ArrayList<User> users = new ArrayList<>();
         users.add(admin);
         users.addAll(data.getStudents().values());
-
         for (User user : users) {
             if (user.getUsername().equals(username)) {
                 if (user.checkPassword(password)) {
@@ -61,7 +61,6 @@ public class AccountService {
                 throw new ValidationException("Wrong password.");
             }
         }
-
         // no account yet, so check their latest request
         AccessRequest latest = null;
         for (AccessRequest r : data.getRequests()) {
