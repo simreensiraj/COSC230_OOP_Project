@@ -31,8 +31,9 @@ public int getMinute() {
 
 public  LocalDateTime getNow() {
 	//must check that clock is set before using LocalDateTime.of
-			if (!this.isSet()) return null;
-		
+			if (!this.isSet()){
+				return null;
+			}
 			return LocalDateTime.of(year, month, day, hour, minute);
 		}
 
@@ -42,15 +43,16 @@ public boolean setStart(int year, int month, int day, int hour, int minute) {
 	}
 	else {
 		if (month>=1 && month<=12 && hour>=0 && hour<=23 && minute>=0 && minute<=59 && day>=1 && day<= daysInMonth(month,year) ) {
-	this.year=year;
-	this.month=month;
-	this.day=day;
-	this.hour=hour;
-	this.minute=minute;
-	isSet=true;
-	return true;}
-		else {return false;}
+			this.year=year;
+			this.month=month;
+			this.day=day;
+			this.hour=hour;
+			this.minute=minute;
+			isSet=true;
+			return true;
 		}
+		else {return false;}
+	}
 }
 
 public boolean isSet() {
