@@ -2,7 +2,7 @@
 
 COSC 230 Object-Oriented Programming lab project, Fall 2026, Khalifa University.
 
-A Java Swing desktop app that shares four NVIDIA H100 GPUs between students. Students ask for an account, the administrator approves them and gives them GPU minutes, and students submit jobs that run on the GPUs one after another. Nothing really runs on a GPU: the GPUs and the clock are simulated, and time only moves when the administrator presses **+1 minute**.
+A Java Swing desktop app that shares four NVIDIA H100 GPUs between students. Students ask for an account, the administrator approves them and gives them GPU minutes, and students submit jobs that run on the GPUs one after another. The GPUs and the clock are simulated, and time only moves when the administrator presses **+1 minute**.
 
 | Member | Student ID | GitHub | Part |
 |---|---|---|---|
@@ -116,7 +116,7 @@ clock.csv     2026,11,16,10,20,20
 
 ## Class diagrams
 
-The code is in four packages. Only `ui` uses Swing; `logic` and `model` never import it. The windows read their fields and call methods in `logic`, which apply the rules.
+The app is in four packages. Only `ui` uses Swing; `logic` and `model` never import it. The windows read their fields and call methods in `logic`, which apply the rules. A fifth package, `tests`, holds the test programs; the app never uses it.
 
 | Package | Classes |
 |---|---|
@@ -124,6 +124,7 @@ The code is in four packages. Only `ui` uses Swing; `logic` and `model` never im
 | `logic` | `AccountService`, `Scheduler`, `SimulationClock`, `ValidationException` |
 | `storage` | `DataStore` |
 | `ui` | `Main`, `LoginFrame`, `StudentRegistrationFrame`, `StudentFrame`, `MyJobsPanel`, `AdminFrame`, `DashboardPanel`, `RequestsPanel`, `StudentsPanel`, `AllJobsPanel`, `ClockSetupPanel` |
+| `tests` | `ModelStorageTest`, `ScenarioTest`, `DemoDataGenerator` |
 
 ### How the packages connect
 
@@ -167,7 +168,7 @@ A `Job` checks its own moves: only Queued → Running or Cancelled, and Running 
 |---|---|
 | Encapsulation | `TimeAllowance` keeps allocated, used and reserved private; only its methods change them. `User` keeps the password private and only offers `checkPassword()`. |
 | Inheritance | `Student` and `Administrator` extend the abstract `User`. The windows extend `JFrame` or `JPanel`; `ValidationException` extends `Exception`. |
-| Interfaces | `Student`, `AccessRequest`, `Job` and `TimeGrant` implement `Storable` (`toLine()`). |
+| Interfaces | `Student`, `AccessRequest`, `Job` and `TimeGrant` implement `Storable` (`toLine()`). `LoginFrame`, `StudentRegistrationFrame`, `StudentFrame` and `MyJobsPanel` implement `ActionListener` for their buttons. |
 | Polymorphism | `login()` returns a `User`, and `LoginFrame` calls `user.isAdmin()`, which runs the `Student` or `Administrator` version. `DataStore` calls `toLine()` on a list of `Storable`, whatever class each item is. |
 | Collections | `HashMap` of students, `ArrayList`s of requests, jobs and grants, `GPU[4]`, the queue as a `List<Job>`, predictions in a `Map<Job, LocalDateTime>`. |
 
@@ -221,7 +222,7 @@ Everything is in one repository on the `main` branch, and each member committed 
 
 | Member | Commits | Main work |
 |---|---|---|
-| Simreen | 63 | project setup, model classes, `AccountService`, `DataStore`, `Main`, tests, diagrams, clean-up, student window tabs |
+| Simreen | 64 | project setup, model classes, `AccountService`, `DataStore`, `Main`, tests, diagrams, clean-up, student window tabs |
 | Mariam | 16 | `SimulationClock`, `Scheduler`, moving it onto the shared `AppData` |
 | Alyazeya | 21 | login, registration, student window, job form, My Jobs, connecting them to the services |
 | Maryam | 9 | admin window and all tabs, clock setup, demo data |
@@ -235,7 +236,7 @@ Everything is in one repository on the `main` branch, and each member committed 
 - One fixed admin account and one user at a time on one computer, as the task describes.
 - Student windows refresh when they come to the front or when *Refresh* is pressed, not on a timer.
 - Some table columns cut off long values unless the window is made wider.
-- Time moves in whole minutes and only the four task sizes exist. No real GPU work happens.
+- Time moves in whole minutes and only the four task sizes exist.
 
 ## Repository layout
 
