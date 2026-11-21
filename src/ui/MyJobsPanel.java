@@ -5,13 +5,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 import logic.Scheduler;
 import model.Student;
 import model.Job;
 import model.JobStatus;
+import model.TimeFormat;
 
 public class MyJobsPanel extends JPanel implements ActionListener {
 
@@ -28,9 +27,6 @@ public class MyJobsPanel extends JPanel implements ActionListener {
 
     JTable jobsTable;
     DefaultTableModel tableModel;
-
-    DateTimeFormatter timeFormat =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public MyJobsPanel(Scheduler scheduler, Student student) {
 
@@ -119,16 +115,6 @@ public class MyJobsPanel extends JPanel implements ActionListener {
         refreshJobs();
     }
 
-    // Format simulated date and time
-    public String formatTime(LocalDateTime time) {
-
-        if (time == null) {
-            return "-";
-        }
-
-        return time.format(timeFormat);
-    }
-
     // Refresh the student's jobs
     public void refreshJobs() {
 
@@ -172,8 +158,8 @@ public class MyJobsPanel extends JPanel implements ActionListener {
                 gpu = "GPU" + job.getAssignedGpuId();
             }
 
-            String start = formatTime(job.getStartTime());
-            String finish = formatTime(job.getFinishTime());
+            String start = TimeFormat.formatOrDash(job.getStartTime());
+            String finish = TimeFormat.formatOrDash(job.getFinishTime());
 
             String queuePosition = "-";
             String wait = "-";
@@ -191,11 +177,11 @@ public class MyJobsPanel extends JPanel implements ActionListener {
                         scheduler.getPredictedFinish(job);
 
                 if (predictedStart != null) {
-                    start = "\u2248 " + formatTime(predictedStart);
+                    start = "\u2248 " + TimeFormat.format(predictedStart);
                 }
 
                 if (predictedFinish != null) {
-                    finish = "\u2248 " + formatTime(predictedFinish);
+                    finish = "\u2248 " + TimeFormat.format(predictedFinish);
                 }
 
                 wait = scheduler.getWaitMinutes(job) + " min";
@@ -207,12 +193,12 @@ public class MyJobsPanel extends JPanel implements ActionListener {
                         job.getExpectedFinish();
 
                 if (expectedFinish != null) {
-                    finish = "\u2248 " + formatTime(expectedFinish);
+                    finish = "\u2248 " + TimeFormat.format(expectedFinish);
                 }
 
                 if (job.getStartTime() != null) {
 
-                    long waitMinutes = ChronoUnit.MINUTES.between(
+                    int waitMinutes = TimeFormat.minutesBetween(
                             job.getSubmissionTime(),
                             job.getStartTime());
 
@@ -222,7 +208,7 @@ public class MyJobsPanel extends JPanel implements ActionListener {
             } else if (job.getStartTime() != null) {
 
                 // Completed or cancelled running jobs
-                long waitMinutes = ChronoUnit.MINUTES.between(
+                int waitMinutes = TimeFormat.minutesBetween(
                         job.getSubmissionTime(),
                         job.getStartTime());
 
@@ -238,7 +224,7 @@ public class MyJobsPanel extends JPanel implements ActionListener {
                     job.getEstimatedDuration() + " min",
                     job.getStatus(),
                     gpu,
-                    formatTime(job.getSubmissionTime()),
+                    TimeFormat.formatOrDash(job.getSubmissionTime()),
                     start,
                     finish,
                     queuePosition,

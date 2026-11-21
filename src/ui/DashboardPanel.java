@@ -4,9 +4,6 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import javax.swing.*;
@@ -20,6 +17,7 @@ import model.Job;
 import model.JobStatus;
 import model.Student;
 import model.TimeAllowance;
+import model.TimeFormat;
 
 public class DashboardPanel extends JPanel {
 
@@ -35,9 +33,6 @@ public class DashboardPanel extends JPanel {
     private DefaultTableModel waitingModel;
     private DefaultTableModel completedModel;
     private DefaultTableModel allowanceModel;
-
-    private static final DateTimeFormatter FORMAT =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public DashboardPanel(AppData data, Scheduler scheduler,
             SimulationClock clock) {
@@ -134,10 +129,6 @@ public class DashboardPanel extends JPanel {
         return panel;
     }
 
-    private String formatTime(LocalDateTime time) {
-        return time == null ? "-" : time.format(FORMAT);
-    }
-
     public void refreshDashboard() {
 
         // Summary counts and utilization
@@ -185,7 +176,7 @@ public class DashboardPanel extends JPanel {
                         + job.getRemainingMinutes(clock.getNow())
                         + " min"
                         + "<br>Finish: "
-                        + formatTime(job.getExpectedFinish())
+                        + TimeFormat.formatOrDash(job.getExpectedFinish())
                         + "</html>");
             }
         }
@@ -201,8 +192,8 @@ public class DashboardPanel extends JPanel {
                     job.getApplicationName(),
                     job.getEstimatedDuration(),
                     scheduler.getQueuePosition(job),
-                    formatTime(scheduler.getPredictedStart(job)),
-                    formatTime(scheduler.getPredictedFinish(job)),
+                    TimeFormat.formatOrDash(scheduler.getPredictedStart(job)),
+                    TimeFormat.formatOrDash(scheduler.getPredictedFinish(job)),
                     scheduler.getWaitMinutes(job) + " min"
             });
         }
@@ -216,17 +207,16 @@ public class DashboardPanel extends JPanel {
 
                 int runtime = job.getMinutesRun(clock.getNow());
 
-                long queueWait = Duration.between(
-                        job.getSubmissionTime(),
-                        job.getStartTime()).toMinutes();
+                int queueWait = TimeFormat.minutesBetween(
+                        job.getSubmissionTime(), job.getStartTime());
 
                 completedModel.addRow(new Object[]{
                         job.getJobId(),
                         job.getStudentId(),
                         "GPU" + job.getAssignedGpuId(),
-                        formatTime(job.getSubmissionTime()),
-                        formatTime(job.getStartTime()),
-                        formatTime(job.getFinishTime()),
+                        TimeFormat.formatOrDash(job.getSubmissionTime()),
+                        TimeFormat.formatOrDash(job.getStartTime()),
+                        TimeFormat.formatOrDash(job.getFinishTime()),
                         runtime + " min",
                         queueWait + " min",
                         runtime + " min"

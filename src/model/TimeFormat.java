@@ -19,6 +19,11 @@ public class TimeFormat {
         return time.format(FORMAT);
     }
 
+    // same, but "-" when there's no time yet (for the tables in the windows)
+    public static String formatOrDash(LocalDateTime time) {
+        return time == null ? "-" : format(time);
+    }
+
     // reads "16/11/2026 10:00", empty text gives null
     public static LocalDateTime parse(String text) {
         if (text == null || text.isEmpty()) {

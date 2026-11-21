@@ -3,10 +3,10 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.time.format.DateTimeFormatter;
 
 import model.Student;
 import model.AppData;
+import model.TimeFormat;
 import logic.AccountService;
 import logic.Scheduler;
 
@@ -133,9 +133,7 @@ public class StudentFrame extends JFrame implements ActionListener {
 
 		if (scheduler.getClock().isSet()) {
 
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
-			clockLabel.setText(scheduler.getClock().getNow().format(formatter));
+			clockLabel.setText(TimeFormat.format(scheduler.getClock().getNow()));
 
 		} else {
 

@@ -3,8 +3,6 @@ package ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -12,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 
 import logic.Scheduler;
 import model.Job;
+import model.TimeFormat;
 
 public class AllJobsPanel extends JPanel {
 
@@ -189,9 +188,9 @@ public class AllJobsPanel extends JPanel {
                     job.getEstimatedDuration(),
                     job.getStatus(),
                     gpu,
-                    formatTime(job.getSubmissionTime()),
-                    formatTime(job.getStartTime()),
-                    formatTime(job.getFinishTime())
+                    TimeFormat.formatOrDash(job.getSubmissionTime()),
+                    TimeFormat.formatOrDash(job.getStartTime()),
+                    TimeFormat.formatOrDash(job.getFinishTime())
             });
 
             displayedCount++;
@@ -200,14 +199,5 @@ public class AllJobsPanel extends JPanel {
         countLabel.setText(
                 "Showing " + displayedCount +
                 " of " + jobs.size() + " jobs");
-    }
-
-    private String formatTime(LocalDateTime time) {
-
-        if (time == null) {
-            return "-";
-        }
-
-        return time.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 }
