@@ -140,10 +140,6 @@ public class DashboardPanel extends JPanel {
 
     public void refreshDashboard() {
 
-        if (scheduler == null || clock == null) {
-            return;
-        }
-
         // Summary counts and utilization
         String utilization = clock.getElapsedMinutes() == 0
                 ? "N/A"
@@ -168,11 +164,6 @@ public class DashboardPanel extends JPanel {
         GPU[] gpus = scheduler.getGpus();
 
         for (int i = 0; i < gpuLabels.length; i++) {
-
-            if (i >= gpus.length) {
-                gpuLabels[i].setText("GPU unavailable");
-                continue;
-            }
 
             GPU gpu = gpus[i];
             Job job = gpu.getCurrentJob();

@@ -3,15 +3,15 @@ package ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import logic.Scheduler;
 import model.Job;
-import model.JobStatus;
 
 public class AllJobsPanel extends JPanel {
 
@@ -152,13 +152,6 @@ public class AllJobsPanel extends JPanel {
         ArrayList<Job> jobs = new ArrayList<>(
                 scheduler.getAllJobs());
 
-        jobs.sort(
-                Comparator.comparing(
-                        Job::getSubmissionTime,
-                        Comparator.nullsLast(
-                                Comparator.naturalOrder()))
-                .thenComparing(Job::getJobId));
-
         int displayedCount = 0;
 
         for (Job job : jobs) {
@@ -209,15 +202,12 @@ public class AllJobsPanel extends JPanel {
                 " of " + jobs.size() + " jobs");
     }
 
-    private String formatTime(
-            java.time.LocalDateTime time) {
+    private String formatTime(LocalDateTime time) {
 
         if (time == null) {
             return "-";
         }
 
-        return time.format(
-                java.time.format.DateTimeFormatter
-                        .ofPattern("dd/MM/yyyy HH:mm"));
+        return time.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 }
