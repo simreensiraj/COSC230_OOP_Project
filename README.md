@@ -62,13 +62,13 @@ The Requests tab lists the requests. **Approve** creates a `Student` with a `Tim
 
 ### 5. The student signs in and sees their minutes
 
-Every student has a `TimeAllowance` with three numbers. **available = allocated − used − reserved**. *Reserved* is time held for jobs that are queued or running; *used* is time that jobs actually ran. Here Sara has 100 allocated, 15 used, 20 reserved, so 65 available.
+The student window has two tabs, like the guide's mockup: **Home and Submit** and **My Jobs**. The top of the Home tab shows the student's minutes. Every student has a `TimeAllowance` with three numbers, and **available = allocated − used − reserved**. *Reserved* is time held for jobs that are queued or running; *used* is time that jobs actually ran. Here Sara has 100 allocated, 15 used, 20 reserved, so 65 available.
 
-<img src="docs/screenshots/student-home.png" width="420" alt="Student home window">
+<img src="docs/screenshots/student-home.png" width="700" alt="Student window, Home and Submit tab">
 
 ### 6. The student submits a job
 
-The student types a title, application and description and picks a size. The duration comes from the size, and the student confirms it. `Scheduler.submit()` first reserves the minutes; if the job needs more than the available time it is refused and nothing is saved (an exact match is accepted).
+Under the minutes, the student types a title, application and description and picks a size. The duration comes from the size, and the student confirms it. `Scheduler.submit()` first reserves the minutes; if the job needs more than the available time it is refused and nothing is saved (an exact match is accepted).
 
 | Confirming a Large job | Not enough time: 60 asked, 55 available |
 |---|---|
@@ -76,7 +76,7 @@ The student types a title, application and description and picks a size. The dur
 
 ### 7. The scheduler puts the job on a GPU or in the queue
 
-If a GPU is free the job starts at once on the lowest-numbered free GPU. If all four are busy it waits in one first-come, first-served queue. For waiting jobs the scheduler predicts when they start: it copies each GPU's "free at" time and hands out the queued jobs in order to the earliest copy (a tie goes to the lower GPU). Only the copies change, never the real GPUs. My Jobs shows each job's status and GPU; predicted times are marked `≈`.
+If a GPU is free the job starts at once on the lowest-numbered free GPU. If all four are busy it waits in one first-come, first-served queue. For waiting jobs the scheduler predicts when they start: it copies each GPU's "free at" time and hands out the queued jobs in order to the earliest copy (a tie goes to the lower GPU). Only the copies change, never the real GPUs. The My Jobs tab shows each job's status and GPU; predicted times are marked `≈`.
 
 ![My Jobs](docs/screenshots/my-jobs.png)
 *Sara's jobs at 10:20: J109 is second in the queue and should start at 10:30, a 10-minute wait.*
@@ -123,7 +123,7 @@ The code is in four packages. Only `ui` uses Swing; `logic` and `model` never im
 | `model` | `User`, `Student`, `Administrator`, `AccessRequest`, `Job`, `GPU`, `TimeAllowance`, `TimeGrant`, `AppData`, `Storable`, `TimeFormat`, `TaskSize`, `JobStatus`, `RequestStatus` |
 | `logic` | `AccountService`, `Scheduler`, `SimulationClock`, `ValidationException` |
 | `storage` | `DataStore` |
-| `ui` | `Main`, `LoginFrame`, `StudentRegistrationFrame`, `StudentFrame`, `SubmitJobFrame`, `MyJobsFrame`, `MyJobsPanel`, `AdminFrame`, `DashboardPanel`, `RequestsPanel`, `StudentsPanel`, `AllJobsPanel`, `ClockSetupPanel` |
+| `ui` | `Main`, `LoginFrame`, `StudentRegistrationFrame`, `StudentFrame`, `MyJobsPanel`, `AdminFrame`, `DashboardPanel`, `RequestsPanel`, `StudentsPanel`, `AllJobsPanel`, `ClockSetupPanel` |
 
 ### How the packages connect
 
@@ -151,7 +151,7 @@ A `Job` checks its own moves: only Queued → Running or Cancelled, and Running 
 
 ### UI: start, login and student windows
 
-`Main` opens `LoginFrame`, which opens the registration form, the student window or the admin window. The student window opens the job form and My Jobs.
+`Main` opens `LoginFrame`, which opens the registration form, the student window or the admin window. `StudentFrame` has two tabs: Home and Submit (minutes and the job form) and My Jobs (`MyJobsPanel`).
 
 <img src="docs/uml/ui-student.png" width="720" alt="Student UI classes">
 
@@ -221,9 +221,9 @@ Everything is in one repository on the `main` branch, and each member committed 
 
 | Member | Commits | Main work |
 |---|---|---|
-| Simreen | 44 | project setup, every model class one commit at a time, `AccountService`, `DataStore`, `Main`, tests, diagrams, clean-up |
-| Mariam | 16 | `SimulationClock`, `Scheduler` step by step, moving it onto the shared `AppData` |
-| Alyazeya | 21 | login, registration, student home, job form, My Jobs, connecting them to the services |
+| Simreen | 48 | project setup, model classes, `AccountService`, `DataStore`, `Main`, tests, diagrams, clean-up, student window tabs |
+| Mariam | 16 | `SimulationClock`, `Scheduler`, moving it onto the shared `AppData` |
+| Alyazeya | 21 | login, registration, student window, job form, My Jobs, connecting them to the services |
 | Maryam | 9 | admin window and all tabs, clock setup, demo data |
 
 *Counts are up to 21 Nov 2026 and leave out merge commits. Some members committed whole screens at once, so the counts don't show how big each commit was.*
