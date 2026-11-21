@@ -1,13 +1,12 @@
 package logic;
 
 import java.time.*;
+import model.TimeFormat;
 
 public class SimulationClock {
     private int year, month, day, hour, minute;
     private boolean isSet;
     private int elapsedMinutes = 0;
-
-    public SimulationClock() {}
 
     // getters
     public int getYear() {
@@ -41,19 +40,17 @@ public class SimulationClock {
     public boolean setStart(int year, int month, int day, int hour, int minute) {
         if (this.isSet()) {
             return false;
-        } else {
-            if (month >= 1 && month <= 12 && hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59 && day >= 1 && day <= daysInMonth(month, year)) {
-                this.year = year;
-                this.month = month;
-                this.day = day;
-                this.hour = hour;
-                this.minute = minute;
-                isSet = true;
-                return true;
-            } else {
-                return false;
-            }
         }
+        if (month >= 1 && month <= 12 && hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59 && day >= 1 && day <= daysInMonth(month, year)) {
+            this.year = year;
+            this.month = month;
+            this.day = day;
+            this.hour = hour;
+            this.minute = minute;
+            isSet = true;
+            return true;
+        }
+        return false;
     }
 
     public boolean isSet() {
@@ -104,28 +101,10 @@ public class SimulationClock {
 
     @Override
     public String toString() {
-        String dateString = "";
-        String timeString = "";
         if (!this.isSet()) {
             return "Not set";
         }
-        if (day < 10) {
-            dateString += 0;
-        }
-        dateString += day + "/";
-        if (month < 10) {
-            dateString += 0;
-        }
-        dateString += month + "/" + year;
-        if (hour < 10) {
-            timeString += 0;
-        }
-        timeString += hour + ":";
-        if (minute < 10) {
-            timeString += 0;
-        }
-        timeString += minute;
-        return dateString + " " + timeString;
+        return TimeFormat.format(getNow());
     }
 
     public int getElapsedMinutes() {
