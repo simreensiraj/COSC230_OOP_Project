@@ -16,13 +16,13 @@ public class AllJobsPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
 
-    private JTextField searchField;
-    private JComboBox<String> statusFilter;
-    private JTable jobsTable;
-    private DefaultTableModel tableModel;
-    private JLabel countLabel;
+    private final JTextField searchField;
+    private final JComboBox<String> statusFilter;
+    private final JTable jobsTable;
+    private final DefaultTableModel tableModel;
+    private final JLabel countLabel;
 
     public AllJobsPanel(Scheduler scheduler) {
 

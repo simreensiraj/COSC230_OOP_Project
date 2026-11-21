@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 // record of extra time the admin gave: who, when (simulated time) and why
 public class TimeGrant implements Storable {
 
-    private String studentId;
-    private int minutes;
-    private String reason;
-    private String grantedBy;
-    private LocalDateTime grantedAt;
+    private final String studentId;
+    private final int minutes;
+    private final String reason;
+    private final String grantedBy;
+    private final LocalDateTime grantedAt;
 
     public TimeGrant(String studentId, int minutes, String reason, String grantedBy,
             LocalDateTime grantedAt) {

@@ -21,7 +21,7 @@ import model.TimeGrant;
 // a missing file just means nothing was saved yet
 public class DataStore {
 
-    private String folder;
+    private final String folder;
 
     public DataStore() {
         this("data");

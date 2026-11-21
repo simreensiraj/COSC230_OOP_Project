@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class Scheduler {
-private SimulationClock clock;
-private Map<String, Student> students;
-private GPU [] gpus;
-private List<Job> jobs;
+private final SimulationClock clock;
+private final Map<String, Student> students;
+private final GPU [] gpus;
+private final List<Job> jobs;
 
 
-private AppData data;
+private final AppData data;
 
 public Scheduler(SimulationClock clock, AppData data) {
     this.clock = clock;

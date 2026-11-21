@@ -14,8 +14,8 @@ public class ClockSetupPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private JSpinner dateSpinner;
-    private JSpinner timeSpinner;
+    private final JSpinner dateSpinner;
+    private final JSpinner timeSpinner;
 
     public ClockSetupPanel(Runnable onClockSet) {
 

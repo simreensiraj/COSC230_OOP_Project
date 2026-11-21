@@ -8,15 +8,15 @@ import java.time.*;
 // anything else throws, so a finished job can't restart or get charged twice
 public class Job implements Storable {
 
-    private String jobId;
-    private String studentId;
-    private String title;
-    private String applicationName;
-    private String description;
-    private TaskSize taskSize;
-    private int workloadUnits;
-    private int estimatedDuration;
-    private LocalDateTime submissionTime;
+    private final String jobId;
+    private final String studentId;
+    private final String title;
+    private final String applicationName;
+    private final String description;
+    private final TaskSize taskSize;
+    private final int workloadUnits;
+    private final int estimatedDuration;
+    private final LocalDateTime submissionTime;
     private JobStatus status;
     private int assignedGpuId;          // 0 until it starts
     private LocalDateTime startTime;

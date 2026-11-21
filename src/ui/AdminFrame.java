@@ -15,15 +15,15 @@ public class AdminFrame extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    private JLabel clockLabel;
-    private JButton advanceButton;
-    private JButton setupButton;
-    private JTabbedPane tabs;
+    private final JLabel clockLabel;
+    private final JButton advanceButton;
+    private final JButton setupButton;
+    private final JTabbedPane tabs;
 
-    private DashboardPanel dashboardPanel;
-    private RequestsPanel requestsPanel;
-    private StudentsPanel studentsPanel;
-    private AllJobsPanel allJobsPanel;
+    private final DashboardPanel dashboardPanel;
+    private final RequestsPanel requestsPanel;
+    private final StudentsPanel studentsPanel;
+    private final AllJobsPanel allJobsPanel;
 
     public AdminFrame(AppData data, AccountService accountService,
             Administrator admin) {

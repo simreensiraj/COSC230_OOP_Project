@@ -6,8 +6,8 @@ import model.*;
 // registration, login, approving/rejecting requests and granting time
 public class AccountService {
     public static final int DEFAULT_MINUTES = 100;
-    private AppData data;
-    private Administrator admin = new Administrator();
+    private final AppData data;
+    private final Administrator admin = new Administrator();
 
     public AccountService(AppData data) {
         this.data = data;

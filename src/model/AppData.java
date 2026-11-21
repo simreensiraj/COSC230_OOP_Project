@@ -6,11 +6,11 @@ import java.util.*;
 // AccountService and the Scheduler work on it. the time is kept in SimulationClock
 public class AppData {
 
-    private HashMap<String, Student> students = new HashMap<>(); // key = university id
-    private ArrayList<AccessRequest> requests = new ArrayList<>();
-    private ArrayList<Job> jobs = new ArrayList<>();
-    private ArrayList<TimeGrant> grants = new ArrayList<>();
-    private GPU[] gpus = new GPU[4];
+    private final HashMap<String, Student> students = new HashMap<>(); // key = university id
+    private final ArrayList<AccessRequest> requests = new ArrayList<>();
+    private final ArrayList<Job> jobs = new ArrayList<>();
+    private final ArrayList<TimeGrant> grants = new ArrayList<>();
+    private final GPU[] gpus = new GPU[4];
 
     public AppData() {
         for (int i = 0; i < gpus.length; i++) {

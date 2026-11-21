@@ -23,16 +23,16 @@ public class DashboardPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private AppData data;
-    private Scheduler scheduler;
-    private SimulationClock clock;
+    private final AppData data;
+    private final Scheduler scheduler;
+    private final SimulationClock clock;
 
-    private JLabel summaryLabel;
-    private JLabel[] gpuLabels = new JLabel[4];
+    private final JLabel summaryLabel;
+    private final JLabel[] gpuLabels = new JLabel[4];
 
-    private DefaultTableModel waitingModel;
-    private DefaultTableModel completedModel;
-    private DefaultTableModel allowanceModel;
+    private final DefaultTableModel waitingModel;
+    private final DefaultTableModel completedModel;
+    private final DefaultTableModel allowanceModel;
 
     public DashboardPanel(AppData data, Scheduler scheduler,
             SimulationClock clock) {

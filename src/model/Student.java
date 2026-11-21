@@ -4,10 +4,10 @@ package model;
 // each student has one TimeAllowance
 public class Student extends User implements Storable {
 
-    private String name;
-    private String email;
-    private String phone;
-    private TimeAllowance allowance;
+    private final String name;
+    private final String email;
+    private final String phone;
+    private final TimeAllowance allowance;
 
     public Student(String universityId, String password, String name, String email, String phone,TimeAllowance allowance) {
         super(universityId, password);

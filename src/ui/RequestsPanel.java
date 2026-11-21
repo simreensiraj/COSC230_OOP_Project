@@ -16,16 +16,16 @@ import model.RequestStatus;
 
 public class RequestsPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
-    private AppData data;
-    private AccountService accountService;
-    private Administrator admin;
+    private final AppData data;
+    private final AccountService accountService;
+    private final Administrator admin;
 
-    private JTable requestTable;
-    private DefaultTableModel tableModel;
-    private JComboBox<String> statusFilter;
-    private JSpinner minutesSpinner;
+    private final JTable requestTable;
+    private final DefaultTableModel tableModel;
+    private final JComboBox<String> statusFilter;
+    private final JSpinner minutesSpinner;
 
-    private ArrayList<AccessRequest> displayedRequests = new ArrayList<>();
+    private final ArrayList<AccessRequest> displayedRequests = new ArrayList<>();
 
     public RequestsPanel(AppData data, AccountService accountService,
             Administrator admin) {

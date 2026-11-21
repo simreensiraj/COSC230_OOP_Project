@@ -23,22 +23,22 @@ public class StudentsPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private AppData data;
-    private AccountService accountService;
-    private Administrator admin;
-    private Scheduler scheduler;
+    private final AppData data;
+    private final AccountService accountService;
+    private final Administrator admin;
+    private final Scheduler scheduler;
 
-    private JTextField searchField;
-    private JTable studentTable;
-    private JTable jobTable;
+    private final JTextField searchField;
+    private final JTable studentTable;
+    private final JTable jobTable;
 
-    private DefaultTableModel studentModel;
-    private DefaultTableModel jobModel;
+    private final DefaultTableModel studentModel;
+    private final DefaultTableModel jobModel;
 
-    private ArrayList<Student> displayedStudents =
+    private final ArrayList<Student> displayedStudents =
             new ArrayList<>();
 
-    private ArrayList<Job> displayedJobs =
+    private final ArrayList<Job> displayedJobs =
             new ArrayList<>();
 
     public StudentsPanel(AppData data,
