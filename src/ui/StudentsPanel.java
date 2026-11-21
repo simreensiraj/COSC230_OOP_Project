@@ -163,8 +163,6 @@ public class StudentsPanel extends JPanel {
 
         refreshButton.addActionListener(
                 e -> refreshStudents());
-
-        refreshStudents();
     }
 
     private DefaultTableModel createModel(String[] columns) {

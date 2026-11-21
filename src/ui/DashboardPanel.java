@@ -95,8 +95,6 @@ public class DashboardPanel extends JPanel {
                 "Student Allowances", allowanceModel));
 
         add(new JScrollPane(content), BorderLayout.CENTER);
-
-        refreshDashboard();
     }
 
     private DefaultTableModel createModel(String[] columns) {

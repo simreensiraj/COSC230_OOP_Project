@@ -110,9 +110,6 @@ public class MyJobsPanel extends JPanel implements ActionListener {
         bottomPanel.add(cancelButton);
 
         add(bottomPanel, BorderLayout.SOUTH);
-
-        // Display existing jobs
-        refreshJobs();
     }
 
     // Refresh the student's jobs

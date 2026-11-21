@@ -90,8 +90,6 @@ public class RequestsPanel extends JPanel {
 
         approveButton.addActionListener(e -> approveRequest());
         rejectButton.addActionListener(e -> rejectRequest());
-
-        refreshRequests();
     }
 
     public void refreshRequests() {

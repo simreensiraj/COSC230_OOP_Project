@@ -159,7 +159,7 @@ public class StudentFrame extends JFrame implements ActionListener {
 	}
 
 	// Update balances, simulated time and the jobs table
-	public void refresh() {
+	private void refresh() {
 
 		allocatedLabel.setText(String.valueOf(student.getAllowance().getAllocated()));
 		usedLabel.setText(String.valueOf(student.getAllowance().getUsed()));
@@ -176,7 +176,7 @@ public class StudentFrame extends JFrame implements ActionListener {
 	}
 
 	// Duration comes from the task size
-	public void updateDuration() {
+	private void updateDuration() {
 
 		TaskSize selectedSize = (TaskSize) sizeBox.getSelectedItem();
 

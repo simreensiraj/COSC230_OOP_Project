@@ -134,8 +134,6 @@ public class AllJobsPanel extends JPanel {
             statusFilter.setSelectedItem("ALL");
             refreshJobs();
         });
-
-        refreshJobs();
     }
 
     public void refreshJobs() {
